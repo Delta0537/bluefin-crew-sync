@@ -22,12 +22,21 @@ function SettingsPage() {
   const usersQ = useQuery({
     queryKey: ["all-users", isAdmin],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*, user_roles(role)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as Array<{ user_id: string; email: string | null; display_name: string | null; user_roles: { role: AppRole }[] }>;
+      const [{ data: profiles, error: pErr }, { data: roles, error: rErr }] = await Promise.all([
+        supabase.from("profiles").select("user_id, email, display_name").order("created_at", { ascending: false }),
+        supabase.from("user_roles").select("user_id, role"),
+      ]);
+      if (pErr) throw pErr;
+      if (rErr) throw rErr;
+      const rolesByUser = new Map<string, AppRole>();
+      for (const r of roles ?? []) {
+        const existing = rolesByUser.get(r.user_id);
+        // admin > manager > viewer precedence
+        if (!existing || r.role === "admin" || (r.role === "manager" && existing === "viewer")) {
+          rolesByUser.set(r.user_id, r.role);
+        }
+      }
+      return (profiles ?? []).map((p) => ({ ...p, role: rolesByUser.get(p.user_id) ?? ("viewer" as AppRole) }));
     },
     enabled: isAdmin,
   });
