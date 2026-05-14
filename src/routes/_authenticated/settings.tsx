@@ -75,7 +75,7 @@ function SettingsPage() {
           ) : (
             <div className="divide-y">
               {(usersQ.data ?? []).map((u) => {
-                const currentRole: AppRole = u.user_roles?.[0]?.role ?? "viewer";
+                const currentRole: AppRole = u.role;
                 return (
                   <div key={u.user_id} className="py-2 flex items-center gap-3">
                     <div className="flex-1 min-w-0">
