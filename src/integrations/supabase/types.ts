@@ -14,16 +14,333 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      employees: {
+        Row: {
+          active: boolean
+          created_at: string
+          email: string | null
+          first_name: string
+          hire_date: string | null
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string | null
+          position: Database["public"]["Enums"]["position_type"]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          email?: string | null
+          first_name: string
+          hire_date?: string | null
+          id?: string
+          last_name: string
+          notes?: string | null
+          phone?: string | null
+          position: Database["public"]["Enums"]["position_type"]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          hire_date?: string | null
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string | null
+          position?: Database["public"]["Enums"]["position_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      job_assignments: {
+        Row: {
+          created_at: string
+          employee_id: string
+          end_date: string
+          id: string
+          job_id: string
+          role_on_job: Database["public"]["Enums"]["position_type"]
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          end_date: string
+          id?: string
+          job_id: string
+          role_on_job: Database["public"]["Enums"]["position_type"]
+          start_date: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          end_date?: string
+          id?: string
+          job_id?: string
+          role_on_job?: Database["public"]["Enums"]["position_type"]
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_assignments_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_assignments_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          booking_date: string | null
+          created_at: string
+          customer_name: string
+          customer_number: string
+          delivery_date: string
+          equipment_asset: string
+          est_completion_date: string
+          id: string
+          mfu_qty: number
+          mfu_type: string | null
+          mhu_qty: number
+          mobe_date: string
+          notes: string | null
+          pc_qty: number
+          po_status: Database["public"]["Enums"]["po_status"]
+          safety_required: boolean
+          service_order: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          site_city: string
+          site_name: string | null
+          site_state: string
+          status: Database["public"]["Enums"]["job_status"]
+          tsm_psm: string | null
+          updated_at: string
+        }
+        Insert: {
+          booking_date?: string | null
+          created_at?: string
+          customer_name: string
+          customer_number: string
+          delivery_date: string
+          equipment_asset: string
+          est_completion_date: string
+          id?: string
+          mfu_qty?: number
+          mfu_type?: string | null
+          mhu_qty?: number
+          mobe_date: string
+          notes?: string | null
+          pc_qty?: number
+          po_status?: Database["public"]["Enums"]["po_status"]
+          safety_required?: boolean
+          service_order?: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          site_city: string
+          site_name?: string | null
+          site_state: string
+          status?: Database["public"]["Enums"]["job_status"]
+          tsm_psm?: string | null
+          updated_at?: string
+        }
+        Update: {
+          booking_date?: string | null
+          created_at?: string
+          customer_name?: string
+          customer_number?: string
+          delivery_date?: string
+          equipment_asset?: string
+          est_completion_date?: string
+          id?: string
+          mfu_qty?: number
+          mfu_type?: string | null
+          mhu_qty?: number
+          mobe_date?: string
+          notes?: string | null
+          pc_qty?: number
+          po_status?: Database["public"]["Enums"]["po_status"]
+          safety_required?: boolean
+          service_order?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          site_city?: string
+          site_name?: string | null
+          site_state?: string
+          status?: Database["public"]["Enums"]["job_status"]
+          tsm_psm?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      time_off: {
+        Row: {
+          created_at: string
+          employee_id: string
+          end_date: string
+          id: string
+          notes: string | null
+          start_date: string
+          type: Database["public"]["Enums"]["time_off_type"]
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          end_date: string
+          id?: string
+          notes?: string | null
+          start_date: string
+          type: Database["public"]["Enums"]["time_off_type"]
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          end_date?: string
+          id?: string
+          notes?: string | null
+          start_date?: string
+          type?: Database["public"]["Enums"]["time_off_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_off_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      utilization_snapshots: {
+        Row: {
+          assigned: number
+          created_at: string
+          id: string
+          position: string
+          snapshot_date: string
+          total_active: number
+          utilization_pct: number
+        }
+        Insert: {
+          assigned: number
+          created_at?: string
+          id?: string
+          position: string
+          snapshot_date: string
+          total_active: number
+          utilization_pct: number
+        }
+        Update: {
+          assigned?: number
+          created_at?: string
+          id?: string
+          position?: string
+          snapshot_date?: string
+          total_active?: number
+          utilization_pct?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_modify: { Args: { _user_id: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "manager" | "viewer"
+      job_status:
+        | "Tentative"
+        | "Confirmed"
+        | "In Progress"
+        | "Completed"
+        | "Cancelled"
+      po_status:
+        | "Approved"
+        | "Received-Awaiting Approval"
+        | "Verbal"
+        | "Open"
+        | "Emergency"
+        | "Tentative"
+      position_type:
+        | "Tech"
+        | "Supervisor"
+        | "Project Manager"
+        | "Engineer"
+        | "Safety"
+      service_type: "HVOF" | "HVOFS" | "OSPM" | "CFS" | "C-Out" | "Other"
+      time_off_type:
+        | "PTO"
+        | "Sick"
+        | "Medical"
+        | "Vacation"
+        | "Bereavement"
+        | "Other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +467,39 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "manager", "viewer"],
+      job_status: [
+        "Tentative",
+        "Confirmed",
+        "In Progress",
+        "Completed",
+        "Cancelled",
+      ],
+      po_status: [
+        "Approved",
+        "Received-Awaiting Approval",
+        "Verbal",
+        "Open",
+        "Emergency",
+        "Tentative",
+      ],
+      position_type: [
+        "Tech",
+        "Supervisor",
+        "Project Manager",
+        "Engineer",
+        "Safety",
+      ],
+      service_type: ["HVOF", "HVOFS", "OSPM", "CFS", "C-Out", "Other"],
+      time_off_type: [
+        "PTO",
+        "Sick",
+        "Medical",
+        "Vacation",
+        "Bereavement",
+        "Other",
+      ],
+    },
   },
 } as const
