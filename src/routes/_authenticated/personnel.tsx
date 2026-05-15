@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, Users } from "lucide-react";
@@ -245,10 +245,9 @@ function EmployeeDialog({
   const [form, setForm] = useState<Partial<Employee>>(employee ?? { position: "Tech", active: true });
   const [busy, setBusy] = useState(false);
 
-  // Reset form when opening
-  useState(() => {
-    setForm(employee ?? { position: "Tech", active: true });
-  });
+  useEffect(() => {
+    if (open) setForm(employee ?? { position: "Tech", active: true });
+  }, [open, employee]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -288,7 +287,7 @@ function EmployeeDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { onOpenChange(o); if (o) setForm(employee ?? { position: "Tech", active: true }); }}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{employee ? "Edit person" : "Add person"}</DialogTitle>

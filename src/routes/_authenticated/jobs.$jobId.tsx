@@ -152,7 +152,7 @@ function JobDetail() {
         <Card className="p-5">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">Customer & PO</h3>
           <dl className="space-y-2 text-sm">
-            <DLRow label="Customer #">{j.customer_number}</DLRow>
+            <DLRow label="FC #">{j.fc_number}</DLRow>
             <DLRow label="Service order">{j.service_order ?? "—"}</DLRow>
             <DLRow label="TSM / PSM">{j.tsm_psm ?? "—"}</DLRow>
             <DLRow label="Equipment">{j.equipment_asset}</DLRow>

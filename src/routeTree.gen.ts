@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedScheduleV2RouteImport } from './routes/_authenticated/schedule-v2'
 import { Route as AuthenticatedScheduleRouteImport } from './routes/_authenticated/schedule'
 import { Route as AuthenticatedPersonnelRouteImport } from './routes/_authenticated/personnel'
 import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
@@ -36,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedScheduleV2Route = AuthenticatedScheduleV2RouteImport.update({
+  id: '/schedule-v2',
+  path: '/schedule-v2',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedScheduleRoute = AuthenticatedScheduleRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/jobs': typeof AuthenticatedJobsRouteWithChildren
   '/personnel': typeof AuthenticatedPersonnelRoute
   '/schedule': typeof AuthenticatedScheduleRoute
+  '/schedule-v2': typeof AuthenticatedScheduleV2Route
   '/settings': typeof AuthenticatedSettingsRoute
   '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
 }
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/jobs': typeof AuthenticatedJobsRouteWithChildren
   '/personnel': typeof AuthenticatedPersonnelRoute
   '/schedule': typeof AuthenticatedScheduleRoute
+  '/schedule-v2': typeof AuthenticatedScheduleV2Route
   '/settings': typeof AuthenticatedSettingsRoute
   '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
 }
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/_authenticated/jobs': typeof AuthenticatedJobsRouteWithChildren
   '/_authenticated/personnel': typeof AuthenticatedPersonnelRoute
   '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
+  '/_authenticated/schedule-v2': typeof AuthenticatedScheduleV2Route
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
 }
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/personnel'
     | '/schedule'
+    | '/schedule-v2'
     | '/settings'
     | '/jobs/$jobId'
   fileRoutesByTo: FileRoutesByTo
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/personnel'
     | '/schedule'
+    | '/schedule-v2'
     | '/settings'
     | '/jobs/$jobId'
   id:
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/_authenticated/jobs'
     | '/_authenticated/personnel'
     | '/_authenticated/schedule'
+    | '/_authenticated/schedule-v2'
     | '/_authenticated/settings'
     | '/_authenticated/jobs/$jobId'
   fileRoutesById: FileRoutesById
@@ -164,6 +176,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/schedule-v2': {
+      id: '/_authenticated/schedule-v2'
+      path: '/schedule-v2'
+      fullPath: '/schedule-v2'
+      preLoaderRoute: typeof AuthenticatedScheduleV2RouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/schedule': {
@@ -220,6 +239,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedJobsRoute: typeof AuthenticatedJobsRouteWithChildren
   AuthenticatedPersonnelRoute: typeof AuthenticatedPersonnelRoute
   AuthenticatedScheduleRoute: typeof AuthenticatedScheduleRoute
+  AuthenticatedScheduleV2Route: typeof AuthenticatedScheduleV2Route
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
@@ -228,6 +248,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedJobsRoute: AuthenticatedJobsRouteWithChildren,
   AuthenticatedPersonnelRoute: AuthenticatedPersonnelRoute,
   AuthenticatedScheduleRoute: AuthenticatedScheduleRoute,
+  AuthenticatedScheduleV2Route: AuthenticatedScheduleV2Route,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 

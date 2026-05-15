@@ -14,6 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { JobDialog } from "@/components/job-dialog";
 import { JOB_STATUS_TONE, JOB_STATUSES, PO_STATUS_TONE, SERVICE_TYPES } from "@/lib/domain";
 import type { JobStatus, ServiceType } from "@/lib/domain";
@@ -59,6 +62,7 @@ function JobsPage() {
     if (q) {
       const s = q.toLowerCase();
       return (
+        j.fc_number.toLowerCase().includes(s) ||
         j.customer_name.toLowerCase().includes(s) ||
         (j.site_name ?? "").toLowerCase().includes(s) ||
         j.site_city.toLowerCase().includes(s) ||
@@ -83,23 +87,21 @@ function JobsPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Input placeholder="Search customer, site, PO…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as JobStatus | "all")}
-          className="h-9 rounded-md border bg-background px-3 text-sm"
-        >
-          <option value="all">All statuses</option>
-          {JOB_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <select
-          value={serviceFilter}
-          onChange={(e) => setServiceFilter(e.target.value as ServiceType | "all")}
-          className="h-9 rounded-md border bg-background px-3 text-sm"
-        >
-          <option value="all">All services</option>
-          {SERVICE_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+        <Input placeholder="Search FC #, customer, site, PO…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as JobStatus | "all")}>
+          <SelectTrigger className="w-44"><SelectValue placeholder="All statuses" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            {JOB_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={serviceFilter} onValueChange={(v) => setServiceFilter(v as ServiceType | "all")}>
+          <SelectTrigger className="w-36"><SelectValue placeholder="All services" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All services</SelectItem>
+            {SERVICE_TYPES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
 
       <Card className="overflow-hidden">

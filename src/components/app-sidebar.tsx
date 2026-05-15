@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, CalendarRange, Briefcase, Users, Settings, Waves } from "lucide-react";
+import { LayoutDashboard, CalendarRange, Briefcase, Users, Settings, Waves, TableProperties } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Schedule", url: "/schedule", icon: CalendarRange },
+  { title: "EOB Schedule", url: "/schedule-v2", icon: TableProperties },
   { title: "Jobs", url: "/jobs", icon: Briefcase },
   { title: "Personnel", url: "/personnel", icon: Users },
   { title: "Settings", url: "/settings", icon: Settings },
