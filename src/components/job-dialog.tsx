@@ -29,6 +29,8 @@ type JobRow = {
   po_status: POStatus;
   equipment_asset: string;
   service_type: ServiceType;
+  spl: string | null;
+  pl: string | null;
   mfu_type: string | null;
   mfu_qty: number;
   mhu_qty: number;
@@ -36,6 +38,7 @@ type JobRow = {
   mobe_date: string;
   delivery_date: string;
   est_completion_date: string;
+  load_out: boolean;
   safety_required: boolean;
   status: JobStatus;
   notes: string | null;
@@ -53,6 +56,8 @@ const schema = z.object({
   po_status: z.enum(["Approved", "Received-Awaiting Approval", "Verbal", "Open", "Emergency", "Tentative"]),
   equipment_asset: z.string().trim().min(1).max(300),
   service_type: z.enum(["HVOF", "HVOFS", "OSPM", "CFS", "C-Out", "Other"]),
+  spl: z.string().max(200).optional().or(z.literal("")),
+  pl: z.string().max(200).optional().or(z.literal("")),
   mfu_type: z.string().max(120).optional().or(z.literal("")),
   mfu_qty: z.number().int().min(0).max(99),
   mhu_qty: z.number().int().min(0).max(99),
@@ -60,6 +65,7 @@ const schema = z.object({
   mobe_date: z.string().min(1),
   delivery_date: z.string().min(1),
   est_completion_date: z.string().min(1),
+  load_out: z.boolean(),
   safety_required: z.boolean(),
   status: z.enum([
     "Upcoming",
@@ -81,6 +87,7 @@ const blank: Partial<JobRow> = {
   mfu_qty: 1,
   mhu_qty: 0,
   pc_qty: 0,
+  load_out: false,
   safety_required: false,
 };
 
@@ -117,6 +124,8 @@ export function JobDialog({
       ...d,
       site_name: d.site_name || null,
       tsm_psm: d.tsm_psm || null,
+      spl: d.spl || null,
+      pl: d.pl || null,
       booking_date: d.booking_date || null,
       service_order: d.service_order || null,
       mfu_type: d.mfu_type || null,
@@ -181,6 +190,21 @@ export function JobDialog({
             </Field>
             <Field label="Equipment / Asset" wide>
               <Input value={form.equipment_asset ?? ""} onChange={(e) => set("equipment_asset", e.target.value)} required />
+            </Field>
+          </Section>
+
+          <Section title="Leads">
+            <Field label="SPL">
+              <Input value={form.spl ?? ""} onChange={(e) => set("spl", e.target.value)} placeholder="Service Project Lead" />
+            </Field>
+            <Field label="PL">
+              <Input value={form.pl ?? ""} onChange={(e) => set("pl", e.target.value)} placeholder="Project Lead" />
+            </Field>
+            <Field label="Load Out">
+              <div className="flex items-center h-9 gap-2">
+                <Switch checked={form.load_out ?? false} onCheckedChange={(v) => set("load_out", v)} />
+                <span className="text-xs text-muted-foreground">{form.load_out ? "Loaded out" : "Not yet"}</span>
+              </div>
             </Field>
           </Section>
 

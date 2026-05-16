@@ -14,7 +14,7 @@ export type UtilizationPoint = {
   totalActive: number;
 };
 
-const POSITIONS: Position[] = ["Tech", "Supervisor", "Project Manager", "Engineer", "Safety"];
+const POSITIONS: Position[] = ["Tech", "Supervisor", "Project Manager", "Engineer", "Safety Lead"];
 
 /**
  * Compute utilization for a given as-of date.

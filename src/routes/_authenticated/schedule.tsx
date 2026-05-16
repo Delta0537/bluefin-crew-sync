@@ -243,7 +243,7 @@ function posToken(p: Position): string {
     Supervisor: "pos-supervisor",
     "Project Manager": "pos-pm",
     Engineer: "pos-engineer",
-    Safety: "pos-safety",
+    "Safety Lead": "pos-safety",
   }[p];
 }
 

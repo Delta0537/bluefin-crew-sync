@@ -51,7 +51,7 @@ type Employee = {
 const employeeSchema = z.object({
   first_name: z.string().trim().min(1, "Required").max(80),
   last_name: z.string().trim().min(1, "Required").max(80),
-  position: z.enum(["Tech", "Supervisor", "Project Manager", "Engineer", "Safety"]),
+  position: z.enum(["Tech", "Supervisor", "Project Manager", "Engineer", "Safety Lead"]),
   email: z.string().trim().email().max(255).optional().or(z.literal("")),
   phone: z.string().trim().max(40).optional().or(z.literal("")),
   hire_date: z.string().optional().or(z.literal("")),

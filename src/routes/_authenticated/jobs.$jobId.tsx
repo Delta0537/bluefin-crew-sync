@@ -155,7 +155,14 @@ function JobDetail() {
             <DLRow label="FC #">{j.fc_number}</DLRow>
             <DLRow label="Service order">{j.service_order ?? "—"}</DLRow>
             <DLRow label="TSM / PSM">{j.tsm_psm ?? "—"}</DLRow>
+            <DLRow label="SPL">{j.spl ?? "—"}</DLRow>
+            <DLRow label="PL">{j.pl ?? "—"}</DLRow>
             <DLRow label="Equipment">{j.equipment_asset}</DLRow>
+            <DLRow label="Load out">
+              {j.load_out
+                ? <span className="inline-flex items-center rounded-md border border-success/40 bg-success/10 text-success px-1.5 py-0.5 text-[11px] font-medium">Loaded out</span>
+                : <span className="text-muted-foreground">Not yet</span>}
+            </DLRow>
           </dl>
         </Card>
         <Card className="p-5">

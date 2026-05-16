@@ -117,13 +117,16 @@ export type Database = {
           mobe_date: string
           notes: string | null
           pc_qty: number
+          pl: string | null
           po_status: Database["public"]["Enums"]["po_status"]
+          load_out: boolean
           safety_required: boolean
           service_order: string | null
           service_type: Database["public"]["Enums"]["service_type"]
           site_city: string
           site_name: string | null
           site_state: string
+          spl: string | null
           status: Database["public"]["Enums"]["job_status"]
           tsm_psm: string | null
           updated_at: string
@@ -143,13 +146,16 @@ export type Database = {
           mobe_date: string
           notes?: string | null
           pc_qty?: number
+          pl?: string | null
           po_status?: Database["public"]["Enums"]["po_status"]
+          load_out?: boolean
           safety_required?: boolean
           service_order?: string | null
           service_type: Database["public"]["Enums"]["service_type"]
           site_city: string
           site_name?: string | null
           site_state: string
+          spl?: string | null
           status?: Database["public"]["Enums"]["job_status"]
           tsm_psm?: string | null
           updated_at?: string
@@ -169,13 +175,16 @@ export type Database = {
           mobe_date?: string
           notes?: string | null
           pc_qty?: number
+          pl?: string | null
           po_status?: Database["public"]["Enums"]["po_status"]
+          load_out?: boolean
           safety_required?: boolean
           service_order?: string | null
           service_type?: Database["public"]["Enums"]["service_type"]
           site_city?: string
           site_name?: string | null
           site_state?: string
+          spl?: string | null
           status?: Database["public"]["Enums"]["job_status"]
           tsm_psm?: string | null
           updated_at?: string
@@ -335,7 +344,7 @@ export type Database = {
         | "Supervisor"
         | "Project Manager"
         | "Engineer"
-        | "Safety"
+        | "Safety Lead"
       service_type: "HVOF" | "HVOFS" | "OSPM" | "CFS" | "C-Out" | "Other"
       time_off_type:
         | "PTO"
@@ -497,7 +506,7 @@ export const Constants = {
         "Supervisor",
         "Project Manager",
         "Engineer",
-        "Safety",
+        "Safety Lead",
       ],
       service_type: ["HVOF", "HVOFS", "OSPM", "CFS", "C-Out", "Other"],
       time_off_type: [

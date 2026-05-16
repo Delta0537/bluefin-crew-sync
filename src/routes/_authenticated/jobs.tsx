@@ -63,7 +63,9 @@ function JobsPage() {
         (j.fc_number ?? "").toLowerCase().includes(s) ||
         (j.site_name ?? "").toLowerCase().includes(s) ||
         j.site_city.toLowerCase().includes(s) ||
-        (j.service_order ?? "").toLowerCase().includes(s)
+        (j.service_order ?? "").toLowerCase().includes(s) ||
+        (j.spl ?? "").toLowerCase().includes(s) ||
+        (j.pl ?? "").toLowerCase().includes(s)
       );
     }
     return true;
@@ -84,7 +86,7 @@ function JobsPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Input placeholder="Search FC#, customer, site, PO…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
+        <Input placeholder="Search FC#, customer, site, SPL/PL, PO…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as JobStatus | "all")}
@@ -144,6 +146,9 @@ function JobsPage() {
                     <Badge variant="outline">{j.service_type}</Badge>
                     {j.safety_required && (
                       <Badge variant="outline" className="ml-1 border-warning/40 text-warning">Safety</Badge>
+                    )}
+                    {j.load_out && (
+                      <Badge variant="outline" className="ml-1 border-success/40 text-success">Loaded out</Badge>
                     )}
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-xs text-muted-foreground">

@@ -6,7 +6,7 @@ export type POStatus = Database["public"]["Enums"]["po_status"];
 export type JobStatus = Database["public"]["Enums"]["job_status"];
 export type TimeOffType = Database["public"]["Enums"]["time_off_type"];
 
-export const POSITIONS: Position[] = ["Tech", "Supervisor", "Project Manager", "Engineer", "Safety"];
+export const POSITIONS: Position[] = ["Tech", "Supervisor", "Project Manager", "Engineer", "Safety Lead"];
 export const SERVICE_TYPES: ServiceType[] = ["HVOF", "HVOFS", "OSPM", "CFS", "C-Out", "Other"];
 export const PO_STATUSES: POStatus[] = ["Approved", "Received-Awaiting Approval", "Verbal", "Open", "Emergency", "Tentative"];
 export const JOB_STATUSES: JobStatus[] = [
@@ -38,15 +38,15 @@ export const POSITION_TOKEN: Record<Position, string> = {
   Supervisor: "pos-supervisor",
   "Project Manager": "pos-pm",
   Engineer: "pos-engineer",
-  Safety: "pos-safety",
+  "Safety Lead": "pos-safety",
 };
 
 export const POSITION_SHORT: Record<Position, string> = {
   Tech: "TECH",
-  Supervisor: "SPV",
+  Supervisor: "SUP",
   "Project Manager": "PM",
   Engineer: "ENG",
-  Safety: "SFTY",
+  "Safety Lead": "SAFE",
 };
 
 export const JOB_STATUS_TONE: Record<JobStatus, string> = {

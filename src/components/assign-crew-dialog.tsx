@@ -21,7 +21,7 @@ import { format } from "date-fns";
 
 const schema = z.object({
   employee_id: z.string().uuid("Select a crew member"),
-  role_on_job: z.enum(["Tech", "Supervisor", "Project Manager", "Engineer", "Safety"]),
+  role_on_job: z.enum(["Tech", "Supervisor", "Project Manager", "Engineer", "Safety Lead"]),
   start_date: z.string().min(1),
   end_date: z.string().min(1),
 }).refine((d) => d.start_date <= d.end_date, { message: "End date must be after start date", path: ["end_date"] });
