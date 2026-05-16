@@ -42,7 +42,7 @@ export function UtilizationChart({
       <div className="flex items-start justify-between gap-4 flex-wrap mb-3">
         <div>
           <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Personnel utilization {scopeLabel ? `— ${scopeLabel}` : ""}
+            Personnel utilization {scopeLabel ? `- ${scopeLabel}` : ""}
           </div>
           <div className="flex items-baseline gap-2 mt-1">
             <span
@@ -51,7 +51,7 @@ export function UtilizationChart({
                 hot ? "text-destructive" : "text-foreground",
               )}
             >
-              {loading ? "—" : `${currentPct}%`}
+              {loading ? "-" : `${currentPct}%`}
             </span>
             <span className="text-xs text-muted-foreground">
               {todayPoint
@@ -63,7 +63,7 @@ export function UtilizationChart({
             <div className="mt-1 flex items-center gap-1 text-[11px] text-destructive">
               <AlertTriangle className="h-3 w-3" />
               <span>
-                Peaks at {peak.pct}% on {format(parseISO(peak.date), "MMM d")} — over the {THRESHOLD}% threshold.
+                Peaks at {peak.pct}% on {format(parseISO(peak.date), "MMM d")} - over the {THRESHOLD}% threshold.
               </span>
             </div>
           )}
@@ -102,7 +102,7 @@ export function UtilizationChart({
               labelFormatter={(d) => format(parseISO(d as string), "EEE MMM d, yyyy")}
               formatter={(v: number, _name, ctx) => {
                 const p = ctx.payload as UtilizationPoint;
-                return [`${v}% — ${p.assigned}/${p.totalActive}`, "Utilization"];
+                return [`${v}% - ${p.assigned}/${p.totalActive}`, "Utilization"];
               }}
             />
             <ReferenceLine

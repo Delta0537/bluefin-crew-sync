@@ -86,7 +86,7 @@ function JobsPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Input placeholder="Search FC#, customer, site, SPL/PL, PO…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
+        <Input placeholder="Search FC#, customer, site, SPL/PL, PO..." value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as JobStatus | "all")}

@@ -195,7 +195,7 @@ function SchedulePage() {
                         const bar = computeBar(a.start_date, a.end_date, rangeStart, DAYS);
                         if (!bar) return null;
                         const label = a.jobs?.fc_number
-                          ? `${a.jobs.fc_number} · ${a.jobs.customer_name ?? "Job"}`
+                          ? `${a.jobs.fc_number} - ${a.jobs.customer_name ?? "Job"}`
                           : (a.jobs?.customer_name ?? "Job");
                         return (
                           <Link

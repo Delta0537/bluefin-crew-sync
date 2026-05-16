@@ -140,7 +140,7 @@ export function TimeOffDialog({
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="submit" disabled={busy}>
-              {busy ? "Saving…" : entry ? "Save changes" : "Add time off"}
+              {busy ? "Saving..." : entry ? "Save changes" : "Add time off"}
             </Button>
           </DialogFooter>
         </form>

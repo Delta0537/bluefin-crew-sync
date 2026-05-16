@@ -141,7 +141,7 @@ function TimeOffPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <Input
-          placeholder="Search by name or notes…"
+          placeholder="Search by name or notes..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
@@ -215,17 +215,17 @@ function TimeOffPage() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {format(parseISO(t.start_date), "MMM d")} → {format(parseISO(t.end_date), "MMM d, yyyy")}
+                        {format(parseISO(t.start_date), "MMM d")} - {format(parseISO(t.end_date), "MMM d, yyyy")}
                       </div>
                       <div className="text-[11px] text-muted-foreground">
                         {days} day{days === 1 ? "" : "s"}
-                        {isCurrent && <span className="text-warning"> · in progress</span>}
-                        {isFuture && <span> · upcoming</span>}
-                        {isPast && <span> · past</span>}
+                        {isCurrent && <span className="text-warning"> - in progress</span>}
+                        {isFuture && <span> - upcoming</span>}
+                        {isPast && <span> - past</span>}
                       </div>
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-muted-foreground text-sm">
-                      {t.notes ?? "—"}
+                      {t.notes ?? "-"}
                     </TableCell>
                     {canModify && (
                       <TableCell>

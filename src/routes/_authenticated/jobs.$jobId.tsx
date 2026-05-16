@@ -155,8 +155,8 @@ function JobDetail() {
             <DLRow label="FC #">{j.fc_number}</DLRow>
             <DLRow label="Service order">{j.service_order ?? "—"}</DLRow>
             <DLRow label="TSM / PSM">{j.tsm_psm ?? "—"}</DLRow>
-            <DLRow label="SPL">{j.spl ?? "—"}</DLRow>
-            <DLRow label="PL">{j.pl ?? "—"}</DLRow>
+            <DLRow label="SPL">{j.spl ?? "-"}</DLRow>
+            <DLRow label="PL">{j.pl ?? "-"}</DLRow>
             <DLRow label="Equipment">{j.equipment_asset}</DLRow>
             <DLRow label="Load out">
               {j.load_out
