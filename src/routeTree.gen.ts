@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedScheduleRouteImport } from './routes/_authenticated/schedule'
 import { Route as AuthenticatedPersonnelRouteImport } from './routes/_authenticated/personnel'
+import { Route as AuthenticatedTimeOffRouteImport } from './routes/_authenticated/time-off'
 import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedJobsJobIdRouteImport } from './routes/_authenticated/jobs.$jobId'
@@ -48,6 +49,11 @@ const AuthenticatedPersonnelRoute = AuthenticatedPersonnelRouteImport.update({
   path: '/personnel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTimeOffRoute = AuthenticatedTimeOffRouteImport.update({
+  id: '/time-off',
+  path: '/time-off',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedJobsRoute = AuthenticatedJobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRouteWithChildren
   '/personnel': typeof AuthenticatedPersonnelRoute
+  '/time-off': typeof AuthenticatedTimeOffRoute
   '/schedule': typeof AuthenticatedScheduleRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRouteWithChildren
   '/personnel': typeof AuthenticatedPersonnelRoute
+  '/time-off': typeof AuthenticatedTimeOffRoute
   '/schedule': typeof AuthenticatedScheduleRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/jobs': typeof AuthenticatedJobsRouteWithChildren
   '/_authenticated/personnel': typeof AuthenticatedPersonnelRoute
+  '/_authenticated/time-off': typeof AuthenticatedTimeOffRoute
   '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/jobs/$jobId': typeof AuthenticatedJobsJobIdRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/jobs'
     | '/personnel'
+    | '/time-off'
     | '/schedule'
     | '/settings'
     | '/jobs/$jobId'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/jobs'
     | '/personnel'
+    | '/time-off'
     | '/schedule'
     | '/settings'
     | '/jobs/$jobId'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/jobs'
     | '/_authenticated/personnel'
+    | '/_authenticated/time-off'
     | '/_authenticated/schedule'
     | '/_authenticated/settings'
     | '/_authenticated/jobs/$jobId'
@@ -180,6 +192,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPersonnelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/time-off': {
+      id: '/_authenticated/time-off'
+      path: '/time-off'
+      fullPath: '/time-off'
+      preLoaderRoute: typeof AuthenticatedTimeOffRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/jobs': {
       id: '/_authenticated/jobs'
       path: '/jobs'
@@ -219,6 +238,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedJobsRoute: typeof AuthenticatedJobsRouteWithChildren
   AuthenticatedPersonnelRoute: typeof AuthenticatedPersonnelRoute
+  AuthenticatedTimeOffRoute: typeof AuthenticatedTimeOffRoute
   AuthenticatedScheduleRoute: typeof AuthenticatedScheduleRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
@@ -227,6 +247,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedJobsRoute: AuthenticatedJobsRouteWithChildren,
   AuthenticatedPersonnelRoute: AuthenticatedPersonnelRoute,
+  AuthenticatedTimeOffRoute: AuthenticatedTimeOffRoute,
   AuthenticatedScheduleRoute: AuthenticatedScheduleRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }

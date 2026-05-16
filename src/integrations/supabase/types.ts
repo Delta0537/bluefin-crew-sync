@@ -106,7 +106,7 @@ export type Database = {
           booking_date: string | null
           created_at: string
           customer_name: string
-          customer_number: string
+          fc_number: string
           delivery_date: string
           equipment_asset: string
           est_completion_date: string
@@ -132,7 +132,7 @@ export type Database = {
           booking_date?: string | null
           created_at?: string
           customer_name: string
-          customer_number: string
+          fc_number: string
           delivery_date: string
           equipment_asset: string
           est_completion_date: string
@@ -158,7 +158,7 @@ export type Database = {
           booking_date?: string | null
           created_at?: string
           customer_name?: string
-          customer_number?: string
+          fc_number?: string
           delivery_date?: string
           equipment_asset?: string
           est_completion_date?: string
@@ -315,10 +315,13 @@ export type Database = {
     Enums: {
       app_role: "admin" | "manager" | "viewer"
       job_status:
-        | "Tentative"
-        | "Confirmed"
-        | "In Progress"
-        | "Completed"
+        | "Upcoming"
+        | "Ongoing"
+        | "Bidding"
+        | "Lost"
+        | "Cross Utilization"
+        | "Projects Returned-Invoicing"
+        | "Other"
         | "Cancelled"
       po_status:
         | "Approved"
@@ -340,6 +343,8 @@ export type Database = {
         | "Medical"
         | "Vacation"
         | "Bereavement"
+        | "Light Duty"
+        | "Out"
         | "Other"
     }
     CompositeTypes: {
@@ -470,10 +475,13 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "manager", "viewer"],
       job_status: [
-        "Tentative",
-        "Confirmed",
-        "In Progress",
-        "Completed",
+        "Upcoming",
+        "Ongoing",
+        "Bidding",
+        "Lost",
+        "Cross Utilization",
+        "Projects Returned-Invoicing",
+        "Other",
         "Cancelled",
       ],
       po_status: [
@@ -498,6 +506,8 @@ export const Constants = {
         "Medical",
         "Vacation",
         "Bereavement",
+        "Light Duty",
+        "Out",
         "Other",
       ],
     },

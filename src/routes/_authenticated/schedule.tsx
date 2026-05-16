@@ -11,6 +11,8 @@ import { POSITIONS } from "@/lib/domain";
 import type { Position } from "@/lib/domain";
 import { PositionBadge } from "@/components/position-badge";
 import { EmptyState } from "@/components/empty-state";
+import { UtilizationChart } from "@/components/utilization-chart";
+import { computeUtilizationSeries } from "@/lib/utilization";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/schedule")({
@@ -20,14 +22,20 @@ export const Route = createFileRoute("/_authenticated/schedule")({
 const DAYS = 28;
 const COL_PX = 36;
 
+// "Field personnel" focus per ops request: who's actually deployable in the field.
+const FIELD_POSITIONS: Position[] = ["Tech", "Supervisor"];
+
+type Scope = "field" | "all" | Position;
+
 function SchedulePage() {
   const [anchor, setAnchor] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
-  const [filter, setFilter] = useState<Position | "all">("all");
+  const [scope, setScope] = useState<Scope>("field");
 
   const rangeStart = anchor;
   const rangeEnd = addDays(anchor, DAYS - 1);
   const startStr = format(rangeStart, "yyyy-MM-dd");
   const endStr = format(rangeEnd, "yyyy-MM-dd");
+  const today = format(new Date(), "yyyy-MM-dd");
 
   const employeesQ = useQuery({
     queryKey: ["employees-active"],
@@ -43,7 +51,7 @@ function SchedulePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("job_assignments")
-        .select("*, jobs(customer_name, service_type)")
+        .select("*, jobs(customer_name, service_type, fc_number)")
         .lte("start_date", endStr)
         .gte("end_date", startStr);
       if (error) throw error;
@@ -61,9 +69,35 @@ function SchedulePage() {
   });
 
   const days = useMemo(() => eachDayOfInterval({ start: rangeStart, end: rangeEnd }), [rangeStart, rangeEnd]);
-  const employees = (employeesQ.data ?? []).filter((e) => filter === "all" || e.position === filter);
+
+  const scopePositions: Position[] | undefined = useMemo(() => {
+    if (scope === "all") return undefined;
+    if (scope === "field") return FIELD_POSITIONS;
+    return [scope];
+  }, [scope]);
+
+  const employees = useMemo(() => {
+    const all = employeesQ.data ?? [];
+    if (!scopePositions) return all;
+    return all.filter((e) => scopePositions.includes(e.position));
+  }, [employeesQ.data, scopePositions]);
+
+  const series = useMemo(() => {
+    if (!employeesQ.data) return [];
+    return computeUtilizationSeries({
+      dates: days.map((d) => format(d, "yyyy-MM-dd")),
+      employees: employeesQ.data.map((e) => ({ id: e.id, position: e.position, active: e.active })),
+      assignments: assignsQ.data ?? [],
+      timeOff: timeOffQ.data ?? [],
+      positions: scopePositions,
+    });
+  }, [days, employeesQ.data, assignsQ.data, timeOffQ.data, scopePositions]);
 
   const loading = employeesQ.isLoading || assignsQ.isLoading || timeOffQ.isLoading;
+  const scopeLabel =
+    scope === "field" ? "Field personnel (Tech + Supervisor)"
+    : scope === "all" ? "All positions"
+    : scope;
 
   return (
     <div className="p-6 space-y-4 max-w-[1600px] mx-auto">
@@ -85,10 +119,13 @@ function SchedulePage() {
         </div>
       </div>
 
+      <UtilizationChart series={series} asOf={today} scopeLabel={scopeLabel} loading={loading} />
+
       <div className="flex gap-1 flex-wrap">
-        <FilterChip active={filter === "all"} onClick={() => setFilter("all")}>All positions</FilterChip>
+        <FilterChip active={scope === "field"} onClick={() => setScope("field")}>Field personnel</FilterChip>
+        <FilterChip active={scope === "all"} onClick={() => setScope("all")}>All positions</FilterChip>
         {POSITIONS.map((p) => (
-          <FilterChip key={p} active={filter === p} onClick={() => setFilter(p)}>{p}</FilterChip>
+          <FilterChip key={p} active={scope === p} onClick={() => setScope(p)}>{p}</FilterChip>
         ))}
       </div>
 
@@ -98,7 +135,7 @@ function SchedulePage() {
             {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-10" />)}
           </div>
         ) : employees.length === 0 ? (
-          <EmptyState icon={<CalendarRange className="h-8 w-8" />} title="No people to schedule" description="Add personnel to populate the timeline." />
+          <EmptyState icon={<CalendarRange className="h-8 w-8" />} title="No people to schedule" description="Add personnel or broaden the filter." />
         ) : (
           <div className="overflow-x-auto">
             <div className="min-w-fit">
@@ -157,6 +194,9 @@ function SchedulePage() {
                       {empAssigns.map((a) => {
                         const bar = computeBar(a.start_date, a.end_date, rangeStart, DAYS);
                         if (!bar) return null;
+                        const label = a.jobs?.fc_number
+                          ? `${a.jobs.fc_number} · ${a.jobs.customer_name ?? "Job"}`
+                          : (a.jobs?.customer_name ?? "Job");
                         return (
                           <Link
                             key={a.id}
@@ -170,9 +210,9 @@ function SchedulePage() {
                               color: `var(--color-${posToken(a.role_on_job)})`,
                               borderLeft: `3px solid var(--color-${posToken(a.role_on_job)})`,
                             }}
-                            title={`${a.jobs?.customer_name ?? "Job"} (${a.role_on_job})`}
+                            title={`${label} (${a.role_on_job})`}
                           >
-                            {a.jobs?.customer_name ?? "Job"}
+                            {label}
                           </Link>
                         );
                       })}

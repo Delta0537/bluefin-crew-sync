@@ -60,6 +60,7 @@ function JobsPage() {
       const s = q.toLowerCase();
       return (
         j.customer_name.toLowerCase().includes(s) ||
+        (j.fc_number ?? "").toLowerCase().includes(s) ||
         (j.site_name ?? "").toLowerCase().includes(s) ||
         j.site_city.toLowerCase().includes(s) ||
         (j.service_order ?? "").toLowerCase().includes(s)
@@ -83,7 +84,7 @@ function JobsPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Input placeholder="Search customer, site, PO…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
+        <Input placeholder="Search FC#, customer, site, PO…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-xs" />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as JobStatus | "all")}
@@ -118,6 +119,7 @@ function JobsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="hidden sm:table-cell">FC #</TableHead>
                 <TableHead>Customer / Site</TableHead>
                 <TableHead>Service</TableHead>
                 <TableHead className="hidden lg:table-cell">Dates</TableHead>
@@ -128,6 +130,7 @@ function JobsPage() {
             <TableBody>
               {filtered.map((j) => (
                 <TableRow key={j.id} className="cursor-pointer" onClick={() => navigate({ to: "/jobs/$jobId", params: { jobId: j.id } })}>
+                  <TableCell className="hidden sm:table-cell font-mono text-xs text-muted-foreground">{j.fc_number}</TableCell>
                   <TableCell>
                     <Link to="/jobs/$jobId" params={{ jobId: j.id }} className="block hover:underline">
                       <div className="font-medium">{j.customer_name}</div>

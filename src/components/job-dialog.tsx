@@ -18,7 +18,7 @@ import type { ServiceType, POStatus, JobStatus } from "@/lib/domain";
 
 type JobRow = {
   id: string;
-  customer_number: string;
+  fc_number: string;
   customer_name: string;
   site_name: string | null;
   site_city: string;
@@ -42,7 +42,7 @@ type JobRow = {
 };
 
 const schema = z.object({
-  customer_number: z.string().trim().min(1).max(80),
+  fc_number: z.string().trim().min(1).max(80),
   customer_name: z.string().trim().min(1).max(200),
   site_name: z.string().max(200).optional().or(z.literal("")),
   site_city: z.string().trim().min(1).max(120),
@@ -61,14 +61,23 @@ const schema = z.object({
   delivery_date: z.string().min(1),
   est_completion_date: z.string().min(1),
   safety_required: z.boolean(),
-  status: z.enum(["Tentative", "Confirmed", "In Progress", "Completed", "Cancelled"]),
+  status: z.enum([
+    "Upcoming",
+    "Ongoing",
+    "Bidding",
+    "Lost",
+    "Cross Utilization",
+    "Projects Returned-Invoicing",
+    "Other",
+    "Cancelled",
+  ]),
   notes: z.string().max(2000).optional().or(z.literal("")),
 });
 
 const blank: Partial<JobRow> = {
   po_status: "Open",
   service_type: "HVOF",
-  status: "Tentative",
+  status: "Upcoming",
   mfu_qty: 1,
   mhu_qty: 0,
   pc_qty: 0,
@@ -138,8 +147,8 @@ export function JobDialog({
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <Section title="Customer">
-            <Field label="Customer number">
-              <Input value={form.customer_number ?? ""} onChange={(e) => set("customer_number", e.target.value)} required />
+            <Field label="FC number">
+              <Input value={form.fc_number ?? ""} onChange={(e) => set("fc_number", e.target.value)} required />
             </Field>
             <Field label="Customer name">
               <Input value={form.customer_name ?? ""} onChange={(e) => set("customer_name", e.target.value)} required />
@@ -221,7 +230,7 @@ export function JobDialog({
 
           <Section title="Status">
             <Field label="Job status">
-              <Select value={form.status ?? "Tentative"} onValueChange={(v) => set("status", v as JobStatus)}>
+              <Select value={form.status ?? "Upcoming"} onValueChange={(v) => set("status", v as JobStatus)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {JOB_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}

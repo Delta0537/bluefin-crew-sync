@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { POSITIONS, JOB_STATUS_TONE } from "@/lib/domain";
+import { POSITIONS, JOB_STATUS_TONE, ACTIVE_JOB_STATUSES } from "@/lib/domain";
 import type { Position } from "@/lib/domain";
 import { PositionBadge } from "@/components/position-badge";
 import { computeUtilization } from "@/lib/utilization";
@@ -83,7 +83,7 @@ function Dashboard() {
     }
   }, [utilization, today]);
 
-  const activeJobs = jobsQ.data?.filter((j) => j.status === "In Progress" || j.status === "Confirmed").length ?? 0;
+  const activeJobs = jobsQ.data?.filter((j) => ACTIVE_JOB_STATUSES.includes(j.status)).length ?? 0;
   const totalActive = employeesQ.data?.filter((e) => e.active).length ?? 0;
   const assignedToday = new Set(assignmentsQ.data?.map((a) => a.employee_id) ?? []).size;
   const overall = totalActive === 0 ? 0 : Math.round((assignedToday / totalActive) * 100);
