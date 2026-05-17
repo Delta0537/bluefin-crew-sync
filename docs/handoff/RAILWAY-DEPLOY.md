@@ -43,7 +43,7 @@ Optional fallbacks in client code: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`.
 
 1. [railway.com](https://railway.com) → **New Project** → **Deploy from GitHub repo** → **`Delta0537/bluefin-crew-sync`** (or your fork).
 2. Root directory: repo root (where `package.json` and `Dockerfile` live).
-3. Add **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_PUBLISHABLE_KEY`** (and any other `VITE_*`) **before** or with the first deploy so **`npm run build`** inside Docker can embed them.
+3. Add **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_PUBLISHABLE_KEY`** in **Variables**. They are wired into the **Docker build** via **`ARG`** in the **`Dockerfile`** so Vite can embed them at build time. Redeploy after changing them.
 4. Railway builds the image from **`Dockerfile`** and runs **`startCommand`** from **`railway.toml`** (same as Dockerfile `CMD`).
 
 ## Local check
