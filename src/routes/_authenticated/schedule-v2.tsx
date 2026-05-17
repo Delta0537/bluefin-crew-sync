@@ -3,11 +3,14 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   addDays,
+  addMonths,
   eachDayOfInterval,
+  endOfMonth,
   format,
   isToday,
   isWeekend,
   parseISO,
+  startOfMonth,
   startOfWeek,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, Grid2x2, Briefcase, CalendarDays } from "lucide-react";
@@ -18,12 +21,31 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { POSITIONS, JOB_STATUS_TONE, PO_STATUS_TONE } from "@/lib/domain";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { POSITIONS, PO_STATUS_TONE } from "@/lib/domain";
 import type { Position } from "@/lib/domain";
 import { PositionBadge } from "@/components/position-badge";
 import { EmptyState } from "@/components/empty-state";
@@ -33,6 +55,7 @@ import { ScheduleCalendarStrip } from "@/components/schedule-calendar-strip";
 import { customerBrandCellClasses } from "@/lib/brand-customer-colors";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
+import { isEobOngoingStatus, isEobUpcomingStatus } from "@/lib/eob-job-buckets";
 
 type Job = Database["public"]["Tables"]["jobs"]["Row"];
 type TimeOffType = Database["public"]["Enums"]["time_off_type"];
@@ -41,8 +64,17 @@ export const Route = createFileRoute("/_authenticated/schedule-v2")({
   component: ScheduleV2Page,
 });
 
-const DAYS = 28;
-const CELL_W = 58;
+type GridZoom = "week" | "2week" | "4week" | "month";
+
+function personnelGridBounds(zoom: GridZoom, focus: Date): { start: Date; end: Date } {
+  if (zoom === "month") {
+    const start = startOfMonth(focus);
+    return { start, end: endOfMonth(start) };
+  }
+  const start = startOfWeek(focus, { weekStartsOn: 1 });
+  const span = zoom === "week" ? 7 : zoom === "2week" ? 14 : 28;
+  return { start, end: addDays(start, span - 1) };
+}
 
 const TIME_OFF_ABBR: Record<TimeOffType, string> = {
   PTO: "PTO",
@@ -59,9 +91,9 @@ function ScheduleV2Page() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { canModify } = useAuth();
-  const [anchor, setAnchor] = useState(() =>
-    startOfWeek(new Date(), { weekStartsOn: 1 }),
-  );
+  const [gridZoom, setGridZoom] = useState<GridZoom>("4week");
+  const [focusDate, setFocusDate] = useState(() => new Date());
+  const [calOpen, setCalOpen] = useState(false);
   const [posFilter, setPosFilter] = useState<Position | "all">("all");
 
   const [quickEdit, setQuickEdit] = useState<{
@@ -83,8 +115,10 @@ function ScheduleV2Page() {
   const [assignOpen, setAssignOpen] = useState(false);
   const [assignId, setAssignId] = useState<string | null>(null);
 
-  const rangeStart = anchor;
-  const rangeEnd = addDays(anchor, DAYS - 1);
+  const { start: rangeStart, end: rangeEnd } = useMemo(
+    () => personnelGridBounds(gridZoom, focusDate),
+    [gridZoom, focusDate],
+  );
   const startStr = format(rangeStart, "yyyy-MM-dd");
   const endStr = format(rangeEnd, "yyyy-MM-dd");
 
@@ -145,17 +179,31 @@ function ScheduleV2Page() {
     [rangeStart, rangeEnd],
   );
 
+  /** Narrow columns when zoomed out so horizontal scroll stays reasonable */
+  const cellW = Math.max(
+    32,
+    days.length <= 7 ? 58 : days.length <= 14 ? 50 : days.length <= 28 ? 42 : 36,
+  );
+
   const employees = (employeesQ.data ?? []).filter(
     (e) => posFilter === "all" || e.position === posFilter,
   );
 
-  const ongoingJobs = (jobsQ.data ?? []).filter((j) => j.status === "Ongoing");
+  const ongoingJobs = (jobsQ.data ?? []).filter((j) => isEobOngoingStatus(j.status as string));
   const upcomingJobs = (jobsQ.data ?? []).filter(
-    (j) => j.status === "Upcoming" || j.status === "Bidding",
+    (j) => !isEobOngoingStatus(j.status as string) && isEobUpcomingStatus(j.status as string),
   );
 
-  const gridLoading =
-    employeesQ.isLoading || assignsQ.isLoading || timeOffQ.isLoading;
+  const bumpGrid = (direction: -1 | 1) => {
+    setFocusDate((prev) => {
+      if (gridZoom === "month") return addMonths(prev, direction);
+      const step = gridZoom === "week" ? 7 : gridZoom === "2week" ? 14 : 28;
+      return addDays(prev, direction * step);
+    });
+  };
+
+  const goPeriodToday = () => setFocusDate(new Date());
+  const gridLoading = employeesQ.isLoading || assignsQ.isLoading || timeOffQ.isLoading;
 
   const invalidateScheduleData = () => {
     qc.invalidateQueries({ queryKey: ["schedule-v2-assigns"] });
@@ -258,29 +306,61 @@ function ScheduleV2Page() {
           <div>
             <h2 className="text-base font-semibold">Personnel grid</h2>
             <p className="text-xs text-muted-foreground">
-              {format(rangeStart, "MMM d")} – {format(rangeEnd, "MMM d, yyyy")} ·
-              Leave/PTO takes priority; click a cell for quick actions
+              {format(rangeStart, "MMM d")} – {format(rangeEnd, "MMM d, yyyy")} · use Zoom + arrows
+              for the window · Leave/PTO wins when overlapped · click a cell for quick actions
             </p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center justify-end gap-1.5">
+            <Select value={gridZoom} onValueChange={(v) => setGridZoom(v as GridZoom)}>
+              <SelectTrigger
+                className="h-9 w-[9.75rem] text-xs"
+                aria-label="Personnel grid time range"
+              >
+                <SelectValue placeholder="Zoom" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="week">1 week</SelectItem>
+                <SelectItem value="2week">2 weeks</SelectItem>
+                <SelectItem value="4week">4 weeks</SelectItem>
+                <SelectItem value="month">Month (calendar)</SelectItem>
+              </SelectContent>
+            </Select>
+            <Popover open={calOpen} onOpenChange={setCalOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1">
+                  <CalendarDays className="h-4 w-4 shrink-0" />
+                  Jump to date
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto border-0 p-0 shadow-lg" align="end">
+                <Calendar
+                  mode="single"
+                  selected={focusDate}
+                  defaultMonth={focusDate}
+                  onSelect={(d) => {
+                    if (!d) return;
+                    setFocusDate(d);
+                    setCalOpen(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setAnchor((a) => addDays(a, -7))}
+              onClick={() => bumpGrid(-1)}
+              aria-label="Previous period"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAnchor(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-            >
+            <Button variant="outline" size="sm" onClick={() => goPeriodToday()}>
               Today
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setAnchor((a) => addDays(a, 7))}
+              onClick={() => bumpGrid(1)}
+              aria-label="Next period"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -297,6 +377,17 @@ function ScheduleV2Page() {
             </FilterChip>
           ))}
         </div>
+
+        {(assignsQ.data?.length ?? 0) === 0 &&
+          !gridLoading &&
+          employees.length > 0 &&
+          (jobsQ.data?.length ?? 0) > 0 && (
+            <p className="mb-3 rounded-md border border-dashed px-3 py-2 bg-muted/25 text-[11px] leading-snug text-muted-foreground">
+              Cells reflect <span className="font-medium text-foreground">crew assignments</span> on
+              jobs in this date range—not the job board alone. If people are blank, widen Zoom or
+              Jump to dates aligned with assignments, then open a job to assign roster dates.
+            </p>
+          )}
 
         <Card className="overflow-hidden">
           {gridLoading ? (
@@ -330,7 +421,7 @@ function ScheduleV2Page() {
                             isWeekend(d) && "bg-muted/40",
                             today && "bg-primary/10",
                           )}
-                          style={{ width: CELL_W }}
+                          style={{ width: cellW }}
                         >
                           <div
                             className={cn(
@@ -340,12 +431,7 @@ function ScheduleV2Page() {
                           >
                             {format(d, "EEE")}
                           </div>
-                          <div
-                            className={cn(
-                              "text-xs font-semibold",
-                              today && "text-primary",
-                            )}
-                          >
+                          <div className={cn("text-xs font-semibold", today && "text-primary")}>
                             {format(d, "d")}
                           </div>
                           <div className="text-[9px] text-muted-foreground/60">
@@ -382,7 +468,7 @@ function ScheduleV2Page() {
                                 weekend && "bg-muted/40",
                                 today && !cell && "bg-primary/5",
                               )}
-                              style={{ width: CELL_W }}
+                              style={{ width: cellW }}
                             >
                               {cell && (
                                 <button
@@ -421,7 +507,9 @@ function ScheduleV2Page() {
 
         {/* Legend */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[10px] text-muted-foreground">
-          <span>Assignment cells use GATE / BlueFin brand tints by client (same hash as Schedule).</span>
+          <span>
+            Assignment cells use GATE / BlueFin brand tints by client (same hash as Schedule).
+          </span>
           <span>Click a cell — open job, edit PTO, or shift assignment dates (managers)</span>
           <span>PTO / VAC / SICK / MED / BRV = paid leave types</span>
           <span className="text-warning font-medium">LD = Light Duty</span>
@@ -437,9 +525,7 @@ function ScheduleV2Page() {
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-base">
-              {quickEdit?.employeeName}
-            </DialogTitle>
+            <DialogTitle className="text-base">{quickEdit?.employeeName}</DialogTitle>
             <DialogDescription>
               {quickEdit && (
                 <>
@@ -504,7 +590,9 @@ function ScheduleV2Page() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setQuickEdit(null)}>Close</Button>
+            <Button variant="ghost" onClick={() => setQuickEdit(null)}>
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -586,11 +674,7 @@ function JobsSection({
             </TableHeader>
             <TableBody>
               {jobs.map((j) => (
-                <TableRow
-                  key={j.id}
-                  className="cursor-pointer"
-                  onClick={() => onNavigate(j.id)}
-                >
+                <TableRow key={j.id} className="cursor-pointer" onClick={() => onNavigate(j.id)}>
                   <TableCell>
                     <span className="font-mono text-xs">{j.fc_number}</span>
                   </TableCell>
@@ -659,9 +743,7 @@ function FilterChip({
       onClick={onClick}
       className={cn(
         "px-3 py-1 text-xs rounded-md border transition-colors",
-        active
-          ? "bg-primary text-primary-foreground border-primary"
-          : "bg-card hover:bg-accent",
+        active ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-accent",
       )}
     >
       {children}
