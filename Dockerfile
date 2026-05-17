@@ -8,6 +8,9 @@ RUN npm ci
 
 COPY . .
 
+# Makes a line show up in hosts that swallow early output (easier to see *something* ran).
+RUN node --version && npm --version
+
 # Railway: user-defined vars must be declared as ARG to exist during `docker build`.
 # Add more ARG/ENV pairs if you introduce additional VITE_* keys.
 ARG VITE_SUPABASE_URL

@@ -35,9 +35,11 @@ Server-only admin paths may use **`SUPABASE_SERVICE_ROLE_KEY`** — set only on 
 
 Optional fallbacks in client code: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`.
 
-## Builder: Docker (not Nixpacks)
+## Builder: Docker (auto-detected)
 
-**`railway.toml`** sets **`builder = "DOCKERFILE"`** and uses the repo **`Dockerfile`** (Node **22**, `npm ci`, `npm run build`, then `node .output/server/index.mjs`). This avoids Nixpacks/Vite/Node auto-detection failures.
+Railway picks up the root **`Dockerfile`** automatically. **`railway.toml`** only sets **deploy** (start command + healthcheck) so builds are not forced through a second builder path that sometimes shows **empty logs** in the UI.
+
+If a deploy “fails” but the dashboard shows nothing, use **GitHub → Actions → “Docker build”** on the same commit, or the CLI below.
 
 ## New project (GUI)
 
@@ -71,3 +73,10 @@ Use a [project token](https://docs.railway.com/guides/cli#project-tokens) or **`
 ## GitHub authentication
 
 HTTPS pushes require a [**Personal Access Token**](https://github.com/settings/tokens) (or SSH keys), not your GitHub password.
+
+## When Railway shows no / empty build logs
+
+1. **Service → Settings → Source** — confirm repo **`Delta0537/bluefin-crew-sync`**, branch **`main`**, **root directory empty** (or exactly `.` if you use a subfolder monorepo).
+2. **Deployments** — click the **failed row** (time stamp), then open **Build Logs** (not only **Deploy Logs**). Try another browser or a private window if the pane stays blank.
+3. **CLI** (from a linked clone): `railway link` → `railway logs` or inspect the latest deployment in the dashboard URL and use **Central Station** / support if the project is stuck.
+4. **This repo** runs **`.github/workflows/docker-build.yml`** on **`main`**: open **GitHub → Actions** for the same commit — if Docker build fails there, the error text is the real failure (network, `npm ci`, `vite build`, etc.).

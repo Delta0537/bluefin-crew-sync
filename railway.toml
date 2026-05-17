@@ -1,9 +1,6 @@
-# Docker build: pins Node 22 and avoids Nixpacks detection quirks.
+# Deploy/runtime only — leave image build to auto-detected root Dockerfile.
+# (Explicit [build] builder = DOCKERFILE has caused empty or stuck builds for some projects.)
 # https://docs.railway.com/guides/dockerfiles
-
-[build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "node .output/server/index.mjs"
