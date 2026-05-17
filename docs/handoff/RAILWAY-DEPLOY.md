@@ -18,6 +18,10 @@ Optional: set **`VERCEL=1`** during build only if you deploy to Vercel (Nitro’
 | `build`  | `vite build` → `.output/` |
 | `start`  | `node .output/server/index.mjs` (also set in **`railway.toml`**) |
 
+## Node version
+
+**Vite 7** requires **Node ^20.19.0 or ≥22.12.0**. The repo pins **`NIXPACKS_NODE_VERSION=22`** in **`nixpacks.toml`** so Railway’s Nixpacks builder does not use the old default (often Node 18). If a deploy still fails with an engine error, try adding **`NIXPACKS_NODE_VERSION=23`** or **`20`** in Railway variables and redeploy.
+
 ## Environment variables
 
 Add in **Railway → Service → Variables**:
