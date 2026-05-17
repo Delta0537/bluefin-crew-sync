@@ -6,5 +6,5 @@
 # Railway project-level "Logs" often looks empty when nothing writes to stdout; emit one line per boot.
 # (railway.toml overrides Dockerfile CMD when present.)
 startCommand = "sh -c 'echo bluefin-crew-sync-node-server-start && exec node .output/server/index.mjs'"
-healthcheckPath = "/"
+healthcheckPath = "/auth"
 healthcheckTimeout = 120
