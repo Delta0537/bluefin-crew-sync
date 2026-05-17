@@ -35,7 +35,7 @@ Suggested initial skills to author (minimum):
 - **Lovable.dev:** Project is connected to GitHub **`Delta0537/bluefin-crew-sync`** (confirm in Lovable Git settings). Treat **GitHub as integration hub** between Lovable and local dev; **Supabase is the live data backend** for the app.
 - **Stack:** Vite + React + TypeScript, TanStack Router (file routes under `src/routes/`), Supabase (auth + Postgres + RLS), shadcn/ui + Tailwind, sonner toasts.
 - **Deploy target:** **Railway** — see **`docs/handoff/RAILWAY-DEPLOY.md`** (Nitro `node-server`, `npm run build` + `npm start`). **Vercel** remains optional via `VERCEL=1`; see **`docs/handoff/VERCEL-DEPLOY.md`**.
-- **Local vs prod build:** Lovable’s preset defaults to a **Cloudflare Worker** on plain `vite build`. **Railway** sets `RAILWAY_ENVIRONMENT`, which switches the build to **Nitro + `.output/`** for Node.
+- **Production `vite build`:** Always **Nitro** with the **`node-server`** preset → **`.output/`** (`npm start` runs Node, listens on **`PORT`**). Optional **`VERCEL=1`** switches Nitro to the Vercel preset.
 
 ## Hard rules (do not violate)
 

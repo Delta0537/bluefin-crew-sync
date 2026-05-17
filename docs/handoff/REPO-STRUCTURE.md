@@ -72,10 +72,10 @@ git remote -v
 
 Remote should show `https://github.com/Delta0537/bluefin-crew-sync.git` (or SSH equivalent).
 
-## Handoff rule for Cursor + Claude Code
+## Rule for Cursor + Claude Code (while building)
 
-Any agent starting work must:
+Anyone changing code should:
 
-1. Confirm `pwd` and presence of `.git` before changing code.
-2. Record in **`docs/handoff/README.md`** if local layout differs (e.g. machine-specific paths).
-3. Never “merge GitHub folders” — **there is only one repo**; cleanup is **local duplicates** and **branch sync**, not two GitHub projects.
+1. Confirm `pwd` and presence of `.git` before editing (canonical tree only).
+2. Note machine-specific layout in **`docs/handoff/README.md`** if it affects how others clone or open the project.
+3. Never “merge GitHub folders” — **there is only one repo**; cleanup means **local duplicates** and **branch sync**, not two GitHub projects.
