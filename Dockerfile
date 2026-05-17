@@ -22,7 +22,15 @@ ARG VITE_SUPABASE_PUBLISHABLE_KEY
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
 
-RUN npm run build
+# Invalidate Docker layer cache when scripts/deps change semantics (optional).
+# In Railway: set a service variable BUILD_CACHE_BUST and pass it as a Docker build ARG
+# (Settings → Build → Docker Build Args), or use "Clear build cache" + redeploy.
+ARG BUILD_CACHE_BUST=0
+RUN echo "BUILD_CACHE_BUST=$BUILD_CACHE_BUST"
+
+# Always build from a clean output tree so a bad layer cache never mixes old + new chunk hashes
+# (symptom: index-*.js still imports dashboard-*.js that was never emitted).
+RUN rm -rf .output dist .nitro .vinxi && npm run build && test -f .output/server/index.mjs
 
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app
