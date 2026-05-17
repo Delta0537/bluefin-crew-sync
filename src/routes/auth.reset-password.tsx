@@ -3,6 +3,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Waves } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  clearPasswordRecoveryPending,
+  markPasswordRecoveryPending,
+} from "@/lib/auth-recovery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,14 +28,38 @@ function ResetPasswordPage() {
     const sub = supabase.auth.onAuthStateChange((event) => {
       if (cancelled) return;
       if (event === "PASSWORD_RECOVERY") {
+        markPasswordRecoveryPending();
         setReady(true);
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    void (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (cancelled) return;
+        if (error) {
+          toast.error(error.message);
+          return;
+        }
+        markPasswordRecoveryPending();
+        const url = new URL(window.location.href);
+        url.searchParams.delete("code");
+        url.searchParams.delete("state");
+        window.history.replaceState(
+          null,
+          "",
+          `${url.pathname}${url.search}${url.hash}`,
+        );
+        setReady(true);
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
       if (cancelled) return;
       if (session) setReady(true);
-    });
+    })();
 
     return () => {
       cancelled = true;
@@ -57,6 +85,7 @@ function ResetPasswordPage() {
       return;
     }
     toast.success("Password updated. You can sign in with your new password.");
+    clearPasswordRecoveryPending();
     await supabase.auth.signOut();
     navigate({ to: "/auth" });
   };

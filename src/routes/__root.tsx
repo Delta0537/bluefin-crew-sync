@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { supabase } from "@/integrations/supabase/client";
+import { markPasswordRecoveryPending } from "@/lib/auth-recovery";
 
 import appCss from "../styles.css?url";
 
@@ -103,7 +104,22 @@ function AuthInvalidator() {
   const router = useRouter();
   const qc = useQueryClient();
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const { hash, pathname, search, origin } = window.location;
+    if (
+      hash &&
+      (hash.includes("type=recovery") || hash.includes("type%3Drecovery")) &&
+      !pathname.includes("reset-password")
+    ) {
+      markPasswordRecoveryPending();
+      window.location.replace(`${origin}/auth/reset-password${hash}${search}`);
+      return;
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        markPasswordRecoveryPending();
+        router.navigate({ to: "/auth/reset-password", replace: true });
+      }
       router.invalidate();
       qc.invalidateQueries();
     });
