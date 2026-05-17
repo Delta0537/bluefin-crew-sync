@@ -18,7 +18,14 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { JobDialog } from "@/components/job-dialog";
-import { JOB_STATUS_TONE, JOB_STATUSES, PO_STATUS_TONE, SERVICE_TYPES, PO_STATUSES } from "@/lib/domain";
+import {
+  JOB_STATUS_TONE,
+  JOB_STATUSES,
+  PO_STATUS_TONE,
+  SERVICE_TYPES,
+  SERVICE_TYPE_LABEL,
+  PO_STATUSES,
+} from "@/lib/domain";
 import type { JobStatus, ServiceType, POStatus } from "@/lib/domain";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
@@ -79,7 +86,9 @@ function JobsPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Jobs</h1>
-          <p className="text-sm text-muted-foreground mt-1">All jobs across HVOF, chemical cleaning, and commissioning.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            All jobs across chemical clean, high velocity oil flush, preventative maintenance, and multi-service work.
+          </p>
         </div>
         {canModify && (
           <Button onClick={() => setCreating(true)}>
@@ -98,10 +107,16 @@ function JobsPage() {
           </SelectContent>
         </Select>
         <Select value={serviceFilter} onValueChange={(v) => setServiceFilter(v as ServiceType | "all")}>
-          <SelectTrigger className="w-36"><SelectValue placeholder="All services" /></SelectTrigger>
+          <SelectTrigger className="w-[min(100%,13.5rem)] sm:w-56">
+            <SelectValue placeholder="All services" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All services</SelectItem>
-            {SERVICE_TYPES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            {SERVICE_TYPES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {SERVICE_TYPE_LABEL[s]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={poFilter} onValueChange={(v) => setPoFilter(v as POStatus | "all")}>

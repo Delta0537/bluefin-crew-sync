@@ -13,7 +13,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { SERVICE_TYPES, PO_STATUSES, JOB_STATUSES } from "@/lib/domain";
+import { SERVICE_TYPES, SERVICE_TYPE_LABEL, PO_STATUSES, JOB_STATUSES } from "@/lib/domain";
 import type { ServiceType, POStatus, JobStatus } from "@/lib/domain";
 
 type JobRow = {
@@ -53,7 +53,7 @@ const schema = z
     service_order: z.string().max(80).optional().or(z.literal("")),
     po_status: z.enum(["None", "Verbal", "Awarded"]),
     equipment_asset: z.string().trim().min(1).max(300),
-    service_type: z.enum(["HVOF", "HVOFS", "OSPM", "CFS", "C-Out", "Other"]),
+    service_type: z.enum(["CC", "HVOF", "PMO", "Mult"]),
     mfu_type: z.string().max(120).optional().or(z.literal("")),
     mfu_qty: z.number().int().min(0).max(99),
     mhu_qty: z.number().int().min(0).max(99),
@@ -185,7 +185,11 @@ export function JobDialog({
               <Select value={form.service_type ?? "HVOF"} onValueChange={(v) => set("service_type", v as ServiceType)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {SERVICE_TYPES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  {SERVICE_TYPES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {SERVICE_TYPE_LABEL[s]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </Field>

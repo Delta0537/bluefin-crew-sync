@@ -7,7 +7,14 @@ export type JobStatus = Database["public"]["Enums"]["job_status"];
 export type TimeOffType = Database["public"]["Enums"]["time_off_type"];
 
 export const POSITIONS: Position[] = ["Tech", "Supervisor", "Project Manager", "Engineer", "Safety"];
-export const SERVICE_TYPES: ServiceType[] = ["HVOF", "HVOFS", "OSPM", "CFS", "C-Out", "Other"];
+/** Stored on jobs / DB using short codes; use SERVICE_TYPE_LABEL in selects. */
+export const SERVICE_TYPES: ServiceType[] = ["CC", "HVOF", "PMO", "Mult"];
+export const SERVICE_TYPE_LABEL: Record<ServiceType, string> = {
+  CC: "Chemical Clean",
+  HVOF: "High Velocity Oil Flush",
+  PMO: "Preventative Maintenance",
+  Mult: "Multiple Services",
+};
 /** Pipeline PO: projecting (None), verbal go-ahead, or awarded contract. */
 export const PO_STATUSES: POStatus[] = ["None", "Verbal", "Awarded"];
 export const JOB_STATUSES: JobStatus[] = [

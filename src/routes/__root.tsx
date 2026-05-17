@@ -76,7 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "BlueFin Energy Services — Scheduling" },
-      { name: "description", content: "Crew scheduling for HVOF, chemical cleaning, and commissioning services." },
+      { name: "description", content: "Crew scheduling for chemical clean, high velocity oil flush, preventative maintenance, and multi-service jobs." },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

@@ -330,7 +330,7 @@ export type Database = {
         | "Project Manager"
         | "Engineer"
         | "Safety"
-      service_type: "HVOF" | "HVOFS" | "OSPM" | "CFS" | "C-Out" | "Other"
+      service_type: "CC" | "HVOF" | "PMO" | "Mult"
       time_off_type:
         | "PTO"
         | "Sick"
@@ -486,7 +486,7 @@ export const Constants = {
         "Engineer",
         "Safety",
       ],
-      service_type: ["HVOF", "HVOFS", "OSPM", "CFS", "C-Out", "Other"],
+      service_type: ["CC", "HVOF", "PMO", "Mult"],
       time_off_type: [
         "PTO",
         "Sick",
