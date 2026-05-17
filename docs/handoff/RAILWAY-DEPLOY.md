@@ -104,3 +104,11 @@ This repo runs **`.github/workflows/docker-build.yml`** on **`main`**. Open **Gi
 1. **Service → Settings → Source** — repo **`Delta0537/bluefin-crew-sync`**, branch **`main`**, **root directory** empty (repo root unless this service lives in a monorepo subfolder).
 2. **Deployments** → failed row → **Build Logs** tab (not only **Deploy Logs**). Try another browser or a private window if the pane stays blank.
 3. **Metal builders:** some projects report empty Docker logs until **Metal builders** is toggled off and on under project/service build settings (see [Railway Help Station](https://station.railway.com/) threads on blank build logs).
+
+## “No logs in this time range” on the **project** Logs page
+
+That screen (`…/project/…/logs`) is **aggregated**. With **Last 5 min** and a healthy, idle app, it often shows **nothing**—no requests, no crashes, no log lines in that window.
+
+1. Open the **`bluefin-crew-sync` service** (canvas) → **Deployments** → latest deploy → **Deploy Logs** / **HTTP Logs**, or widen the time filter to **Last hour**.
+2. After redeploy, look for the boot line **`bluefin-crew-sync-node-server-start`** (printed by **`railway.toml`** `startCommand`) so you can confirm the process started even when traffic is zero.
+3. Prefer the CLI: **`railway logs --deployment --latest --lines 200`** (and **`--service <name>`** if you have multiple services).
