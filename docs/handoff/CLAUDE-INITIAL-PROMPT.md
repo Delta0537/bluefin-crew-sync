@@ -1,6 +1,8 @@
-# BlueFin Crew Sync — Claude Code handoff (coordinate with Cursor)
+# BlueFin Crew Sync — building with Claude Code (and Cursor)
 
-You are taking over **bluefin-crew-sync**, the BlueFin Energy Services internal scheduling app. Another engineer has been working in **Cursor**; the owner will alternate between Cursor and Claude Code. **Every change must survive multiple handoffs**, so you must **write for coordination**, not one-off cleverness.
+You are **actively building** **bluefin-crew-sync**, the BlueFin Energy Services internal scheduling app. The owner uses **Cursor** and **Claude Code** as **two peers on the same product**—not a linear “pass the baton” workflow. Sessions switch between tools and people; **durable notes in the repo** keep everyone aligned while **shipping features, fixes, and ops**.
+
+Write **clear, maintainable code** and **update shared docs** when you learn something non-obvious so the next session—human or agent—does not rediscover it. That is **shared project memory**, not paperwork only for handoffs.
 
 ## One repo, one canonical folder (read first)
 
@@ -8,17 +10,17 @@ You are taking over **bluefin-crew-sync**, the BlueFin Energy Services internal 
 - **Local:** The owner may use a Cursor workspace like **`BlueFin Schedule`** that contains **`bluefin-crew-sync/`** (the only directory with **`.git`**) plus optional extras (EOB `.xlsm`, or a stray **`bluefin-crew-glass/`** copy without git). **All git and dev commands run inside `bluefin-crew-sync/`.**
 - **Do not** “merge two GitHub folders” — consolidate **local duplicates** only, per **`docs/handoff/REPO-STRUCTURE.md`**.
 
-## Multi-agent coordination (mandatory)
+## Shared context in the repo (mandatory)
 
-- **Assume** the next session may be Cursor, Claude Code, or a human with only the repo and this folder.
-- **Create and maintain** a small **handoff system** in the repo (not only in chat):
+- **Assume** tomorrow’s session might be Cursor, Claude Code, Lovable, or the owner with only the repo—while **everyone is still building**, not closing the project.
+- **Maintain** a thin **continuity layer** in git (not only chat) so active development does not depend on one thread:
 
-  1. **`docs/handoff/README.md`** — current state: branch, last deploy, Supabase project nickname, env var names (never values), open risks, “next 3 tasks.”
+  1. **`docs/handoff/README.md`** — living snapshot: branch, deploy target, Supabase project nickname, env var **names** (never values), open risks, “next 3 tasks.”
   2. **`docs/handoff/decisions.md`** — dated ADRs: schema choices, why `fc_number` not `customer_number`, job status enum, RLS model.
-  3. **`prompts/`** — reusable prompts: “run migrations,” “audit security,” “deploy Railway,” “sync Lovable,” each with prerequisites and verification steps.
-  4. **Skills (Claude / Cursor)** — add **`skills/`** at repo root (or `.claude/skills/` if you standardize on Claude Code) with **`SKILL.md`** files that encode **repeatable procedures** we do often. Each skill must list: trigger phrases, prerequisites, steps, verification, rollback.
+  3. **`prompts/`** — reusable task prompts: migrations, security audit, deploy Railway/Vercel, Lovable sync—each with prerequisites and verification.
+  4. **`skills/`** (repo root or `.claude/skills/`) — **`SKILL.md`** files for **repeatable procedures** the team runs often: trigger phrases, prerequisites, steps, verification, rollback.
 
-- **Rule:** Whenever you finish a non-trivial task, update `docs/handoff/README.md` and, if you learned a durable procedure, add or extend a **`skills/.../SKILL.md`**.
+- **Rule:** After **non-trivial** work (schema, deploy, auth, major UX), refresh `docs/handoff/README.md`. When you lock in a **repeatable** procedure, add or extend **`skills/.../SKILL.md`** so Cursor and Claude both apply it the same way.
 
 Suggested initial skills to author (minimum):
 
@@ -32,7 +34,8 @@ Suggested initial skills to author (minimum):
 - **Users:** ~5–10 internal; **no production** requirement yet; dev via `npm run dev` against **shared hosted Supabase**.
 - **Lovable.dev:** Project is connected to GitHub **`Delta0537/bluefin-crew-sync`** (confirm in Lovable Git settings). Treat **GitHub as integration hub** between Lovable and local dev; **Supabase is the live data backend** for the app.
 - **Stack:** Vite + React + TypeScript, TanStack Router (file routes under `src/routes/`), Supabase (auth + Postgres + RLS), shadcn/ui + Tailwind, sonner toasts.
-- **Deploy target (later):** Prefer **Railway** (subscription); **Vercel** is acceptable. Document chosen platform in `docs/handoff/README.md` once decided.
+- **Deploy target:** **Railway** — see **`docs/handoff/RAILWAY-DEPLOY.md`** (Nitro `node-server`, `npm run build` + `npm start`). **Vercel** remains optional via `VERCEL=1`; see **`docs/handoff/VERCEL-DEPLOY.md`**.
+- **Local vs prod build:** Lovable’s preset defaults to a **Cloudflare Worker** on plain `vite build`. **Railway** sets `RAILWAY_ENVIRONMENT`, which switches the build to **Nitro + `.output/`** for Node.
 
 ## Hard rules (do not violate)
 
@@ -64,22 +67,22 @@ Suggested initial skills to author (minimum):
   - Document findings in **`docs/handoff/security-audit-YYYY-MM-DD.md`** with severity and fixes.
 - If anything looks like **malware or token exfiltration**, **stop and document** with file paths and evidence; do not “fix silently.”
 
-## Git / GitHub truth check (as of handoff)
+## Git / GitHub (keep `main` honest)
 
-- Local `main` may be **ahead of `origin/main`** by commits that include migration + EOB v2 + `.env` removal. **Run `git status` and `git log origin/main..HEAD`** and **push** if appropriate after review.
-- After push, confirm **Lovable** shows the same branch/commits you expect.
+- Local `main` may diverge from `origin/main`. **Run `git status`**, **`git fetch origin`**, and reconcile (push / pull / rebase per team practice) so GitHub and **Lovable** reflect what you are building.
+- After a push, confirm **Lovable** shows the branch and commits you expect.
 
-## First tasks (suggested order)
+## First tasks when you pick up the repo (suggested)
 
-1. **Reconcile GitHub vs local** — push or pull; ensure `main` matches intent.
-2. **Verify Supabase** — tables exist, `jobs.fc_number` present, enums match app types, RLS sane.
-3. **Create** `docs/handoff/*` and **`skills/*` SKILL.md** as above; link them from root `README.md` in a short “Contributing / handoff” section.
-4. **Rotate Supabase keys** if not done; document in handoff (done/not done, date) **without** pasting secrets.
-5. **Choose deploy path** (Railway vs Vercel), spike deploy, document env vars and URL.
-6. Optional: **import path** from PPC EOB `.xlsm` — only after schema and app are stable; spec in `docs/handoff/` first.
+1. **Reconcile GitHub vs local** — push or pull; align `main` with team intent.
+2. **Verify Supabase** — tables exist, `jobs.fc_number` present, enums match the app, RLS sane.
+3. **Grow `docs/handoff/` and `skills/`** as above; keep root `README.md` pointing at them so both Cursor and Claude land in the same place.
+4. **Supabase keys** — if not already done after historical `.env` exposure, rotate; note status and date in `docs/handoff/README.md` (**no** secret values).
+5. **Deploy** — **Railway** when ready; see **`docs/handoff/RAILWAY-DEPLOY.md`** (optional Vercel: **`VERCEL-DEPLOY.md`**).
+6. Optional: **EOB `.xlsm` import** — spec in `docs/handoff/` once schema and core flows are stable.
 
-## How to report back to the human
+## When you sync with the owner
 
-- Short summary: what you changed, where docs/skills live, what is **still unsafe** or **unverified**, and the **exact next command** they should run.
+- Short summary: what you **built or changed**, where docs/skills live, what remains **unsafe** or **unverified**, and the **exact next command** they should run (if any).
 
-Begin by: (1) inspecting git remotes and divergence from `origin/main`, (2) listing `supabase/migrations/`, (3) creating or updating `docs/handoff/README.md` with today’s snapshot, then proceed.
+**On first touch:** (1) confirm git remote and divergence from `origin/main`, (2) list `supabase/migrations/`, (3) update `docs/handoff/README.md` with today’s snapshot, then **continue building** (features, fixes, deploy, audits—whatever the owner asks).

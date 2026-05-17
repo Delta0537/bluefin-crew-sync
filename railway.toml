@@ -1,0 +1,10 @@
+# https://docs.railway.com/guides/config-as-code
+# Nixpacks runs `npm install`, `npm run build`, then this start command.
+
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "npm run start"
+healthcheckPath = "/"
+healthcheckTimeout = 60
