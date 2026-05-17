@@ -33,7 +33,7 @@ Add in **Railway → Service → Variables**:
 
 Server-only admin paths may use **`SUPABASE_SERVICE_ROLE_KEY`** — set only on the server, never in `VITE_*`.
 
-Optional fallbacks in client code: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`.
+SSR and auth middleware read **`process.env`**. Define **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_PUBLISHABLE_KEY`** on the Railway service (same as Lovable); they are passed into the Docker **build** via **`Dockerfile`** `ARG`s and are also available at **runtime**, and the server falls back to those names when **`SUPABASE_URL`** / **`SUPABASE_PUBLISHABLE_KEY`** are unset.
 
 ## Builder: Docker (auto-detected)
 
