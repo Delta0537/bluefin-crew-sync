@@ -16,10 +16,12 @@ import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedScheduleV2RouteImport } from './routes/_authenticated/schedule-v2'
+import { Route as AuthenticatedScheduleGanttRouteImport } from './routes/_authenticated/schedule-gantt'
 import { Route as AuthenticatedScheduleRouteImport } from './routes/_authenticated/schedule'
 import { Route as AuthenticatedPersonnelRouteImport } from './routes/_authenticated/personnel'
 import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
 import { Route as AuthenticatedJobsJobIdRouteImport } from './routes/_authenticated/jobs.$jobId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -56,6 +58,12 @@ const AuthenticatedScheduleV2Route = AuthenticatedScheduleV2RouteImport.update({
   path: '/schedule-v2',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedScheduleGanttRoute =
+  AuthenticatedScheduleGanttRouteImport.update({
+    id: '/schedule-gantt',
+    path: '/schedule-gantt',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedScheduleRoute = AuthenticatedScheduleRouteImport.update({
   id: '/schedule',
   path: '/schedule',
@@ -76,6 +84,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCreateRoute = AuthenticatedCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedJobsJobIdRoute = AuthenticatedJobsJobIdRouteImport.update({
   id: '/$jobId',
   path: '/$jobId',
@@ -85,10 +98,12 @@ const AuthenticatedJobsJobIdRoute = AuthenticatedJobsJobIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
+  '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRouteWithChildren
   '/personnel': typeof AuthenticatedPersonnelRoute
   '/schedule': typeof AuthenticatedScheduleRoute
+  '/schedule-gantt': typeof AuthenticatedScheduleGanttRoute
   '/schedule-v2': typeof AuthenticatedScheduleV2Route
   '/settings': typeof AuthenticatedSettingsRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -97,10 +112,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/jobs': typeof AuthenticatedJobsRouteWithChildren
   '/personnel': typeof AuthenticatedPersonnelRoute
   '/schedule': typeof AuthenticatedScheduleRoute
+  '/schedule-gantt': typeof AuthenticatedScheduleGanttRoute
   '/schedule-v2': typeof AuthenticatedScheduleV2Route
   '/settings': typeof AuthenticatedSettingsRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -112,10 +129,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
+  '/_authenticated/create': typeof AuthenticatedCreateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/jobs': typeof AuthenticatedJobsRouteWithChildren
   '/_authenticated/personnel': typeof AuthenticatedPersonnelRoute
   '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
+  '/_authenticated/schedule-gantt': typeof AuthenticatedScheduleGanttRoute
   '/_authenticated/schedule-v2': typeof AuthenticatedScheduleV2Route
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -127,10 +146,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/create'
     | '/dashboard'
     | '/jobs'
     | '/personnel'
     | '/schedule'
+    | '/schedule-gantt'
     | '/schedule-v2'
     | '/settings'
     | '/auth/reset-password'
@@ -139,10 +160,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/create'
     | '/dashboard'
     | '/jobs'
     | '/personnel'
     | '/schedule'
+    | '/schedule-gantt'
     | '/schedule-v2'
     | '/settings'
     | '/auth/reset-password'
@@ -153,10 +176,12 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/create'
     | '/_authenticated/dashboard'
     | '/_authenticated/jobs'
     | '/_authenticated/personnel'
     | '/_authenticated/schedule'
+    | '/_authenticated/schedule-gantt'
     | '/_authenticated/schedule-v2'
     | '/_authenticated/settings'
     | '/auth/reset-password'
@@ -221,6 +246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedScheduleV2RouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/schedule-gantt': {
+      id: '/_authenticated/schedule-gantt'
+      path: '/schedule-gantt'
+      fullPath: '/schedule-gantt'
+      preLoaderRoute: typeof AuthenticatedScheduleGanttRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/schedule': {
       id: '/_authenticated/schedule'
       path: '/schedule'
@@ -249,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/create': {
+      id: '/_authenticated/create'
+      path: '/create'
+      fullPath: '/create'
+      preLoaderRoute: typeof AuthenticatedCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/jobs/$jobId': {
       id: '/_authenticated/jobs/$jobId'
       path: '/$jobId'
@@ -271,19 +310,23 @@ const AuthenticatedJobsRouteWithChildren =
   AuthenticatedJobsRoute._addFileChildren(AuthenticatedJobsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedJobsRoute: typeof AuthenticatedJobsRouteWithChildren
   AuthenticatedPersonnelRoute: typeof AuthenticatedPersonnelRoute
   AuthenticatedScheduleRoute: typeof AuthenticatedScheduleRoute
+  AuthenticatedScheduleGanttRoute: typeof AuthenticatedScheduleGanttRoute
   AuthenticatedScheduleV2Route: typeof AuthenticatedScheduleV2Route
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCreateRoute: AuthenticatedCreateRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedJobsRoute: AuthenticatedJobsRouteWithChildren,
   AuthenticatedPersonnelRoute: AuthenticatedPersonnelRoute,
   AuthenticatedScheduleRoute: AuthenticatedScheduleRoute,
+  AuthenticatedScheduleGanttRoute: AuthenticatedScheduleGanttRoute,
   AuthenticatedScheduleV2Route: AuthenticatedScheduleV2Route,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }

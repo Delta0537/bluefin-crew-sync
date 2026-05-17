@@ -103,6 +103,8 @@ export type Database = {
       }
       jobs: {
         Row: {
+          sr_technicians: number
+          technicians: number
           booking_date: string | null
           created_at: string
           customer_name: string
@@ -150,7 +152,9 @@ export type Database = {
           site_city: string
           site_name?: string | null
           site_state: string
+          sr_technicians?: number
           status?: Database["public"]["Enums"]["job_status"]
+          technicians?: number
           tsm_psm?: string | null
           updated_at?: string
         }
@@ -176,8 +180,55 @@ export type Database = {
           site_city?: string
           site_name?: string | null
           site_state?: string
+          sr_technicians?: number
           status?: Database["public"]["Enums"]["job_status"]
+          technicians?: number
           tsm_psm?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      schedule_calendar_items: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          kind: Database["public"]["Enums"]["calendar_item_kind"]
+          notes: string | null
+          po_reference: string | null
+          site_or_customer: string | null
+          sr_technicians: number
+          start_date: string
+          technicians: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          kind: Database["public"]["Enums"]["calendar_item_kind"]
+          notes?: string | null
+          po_reference?: string | null
+          site_or_customer?: string | null
+          sr_technicians?: number
+          start_date: string
+          technicians?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["calendar_item_kind"]
+          notes?: string | null
+          po_reference?: string | null
+          site_or_customer?: string | null
+          sr_technicians?: number
+          start_date?: string
+          technicians?: number
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -314,6 +365,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "manager" | "viewer"
+      calendar_item_kind: "walk_down" | "meeting"
       job_status:
         | "Upcoming"
         | "Ongoing"
@@ -468,6 +520,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "manager", "viewer"],
+      calendar_item_kind: ["walk_down", "meeting"],
       job_status: [
         "Upcoming",
         "Ongoing",

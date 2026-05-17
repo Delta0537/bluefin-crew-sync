@@ -29,6 +29,7 @@ import { PositionBadge } from "@/components/position-badge";
 import { EmptyState } from "@/components/empty-state";
 import { TimeOffDialog, type TimeOffRecord } from "@/components/time-off-dialog";
 import { AssignmentDatesDialog } from "@/components/assignment-dates-dialog";
+import { ScheduleCalendarStrip } from "@/components/schedule-calendar-strip";
 import { customerBrandCellClasses } from "@/lib/brand-customer-colors";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
@@ -230,7 +231,12 @@ function ScheduleV2Page() {
         </p>
       </div>
 
-      {/* ── Jobs Board ───────────────────────────────────────────── */}
+      <ScheduleCalendarStrip
+        rangeLabel={`${format(rangeStart, "MMM d")} – ${format(rangeEnd, "MMM d, yyyy")}`}
+        startStr={startStr}
+        endStr={endStr}
+      />
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <JobsSection
           title="Ongoing"

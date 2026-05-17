@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, Search, LogOut, Plus } from "lucide-react";
+import { Bell, Search, LogOut, Plus, ChevronDown, ClipboardList, CalendarDays, Briefcase } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Topbar() {
-  const { user, role, canModify, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState("");
@@ -29,14 +29,14 @@ export function Topbar() {
       if (e.key === "/" && !inField) {
         e.preventDefault();
         searchRef.current?.focus();
-      } else if (e.key === "n" && !inField && canModify) {
+      } else if (e.key === "n" && !inField) {
         e.preventDefault();
-        navigate({ to: "/jobs", search: { new: true } as never });
+        navigate({ to: "/create" });
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [navigate, canModify]);
+  }, [navigate]);
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/80 backdrop-blur-md px-4">
@@ -55,11 +55,27 @@ export function Topbar() {
         </kbd>
       </div>
       <div className="ml-auto flex items-center gap-1">
-        {canModify && (
-          <Button size="sm" onClick={() => navigate({ to: "/jobs", search: { new: true } as never })}>
-            <Plus className="h-4 w-4" /> New job
-          </Button>
-        )}
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" className="gap-1">
+                <Plus className="h-4 w-4" /> Create
+                <ChevronDown className="h-3.5 w-3.5 opacity-70" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Create new</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate({ to: "/create", search: { kind: "project" } })}>
+                <Briefcase className="h-4 w-4" /> Project (job)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate({ to: "/create", search: { kind: "walk_down" } })}>
+                <ClipboardList className="h-4 w-4" /> Walk-down
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate({ to: "/create", search: { kind: "meeting" } })}>
+                <CalendarDays className="h-4 w-4" /> Meeting
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         <Button variant="ghost" size="icon" aria-label="Notifications">
           <Bell className="h-4 w-4" />
         </Button>

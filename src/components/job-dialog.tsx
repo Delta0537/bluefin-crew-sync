@@ -33,6 +33,8 @@ type JobRow = {
   mfu_qty: number;
   mhu_qty: number;
   pc_qty: number;
+  sr_technicians: number;
+  technicians: number;
   mobe_date: string;
   delivery_date: string;
   est_completion_date: string;
@@ -58,6 +60,8 @@ const schema = z
     mfu_qty: z.number().int().min(0).max(99),
     mhu_qty: z.number().int().min(0).max(99),
     pc_qty: z.number().int().min(0).max(99),
+    sr_technicians: z.number().int().min(0).max(99),
+    technicians: z.number().int().min(0).max(99),
     mobe_date: z.string().min(1, "Mobe date is required"),
     delivery_date: z.string().min(1, "Delivery date is required"),
     est_completion_date: z.string().min(1, "Est. completion date is required"),
@@ -90,6 +94,8 @@ const blank: Partial<JobRow> = {
   mfu_qty: 1,
   mhu_qty: 0,
   pc_qty: 0,
+  sr_technicians: 0,
+  technicians: 0,
   safety_required: false,
 };
 
@@ -117,6 +123,8 @@ export function JobDialog({
       mfu_qty: Number(form.mfu_qty ?? 1),
       mhu_qty: Number(form.mhu_qty ?? 0),
       pc_qty: Number(form.pc_qty ?? 0),
+      sr_technicians: Number(form.sr_technicians ?? 0),
+      technicians: Number(form.technicians ?? 0),
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0]?.message ?? "Invalid input");
@@ -243,6 +251,12 @@ export function JobDialog({
             </Field>
             <Field label="PC qty">
               <Input type="number" min={0} value={form.pc_qty ?? 0} onChange={(e) => set("pc_qty", Number(e.target.value))} />
+            </Field>
+            <Field label="Sr. technicians">
+              <Input type="number" min={0} value={form.sr_technicians ?? 0} onChange={(e) => set("sr_technicians", Number(e.target.value))} />
+            </Field>
+            <Field label="Technicians">
+              <Input type="number" min={0} value={form.technicians ?? 0} onChange={(e) => set("technicians", Number(e.target.value))} />
             </Field>
           </Section>
 

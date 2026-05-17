@@ -31,6 +31,7 @@ import type { Position } from "@/lib/domain";
 import { PositionBadge } from "@/components/position-badge";
 import { EmptyState } from "@/components/empty-state";
 import { AssignmentDatesDialog } from "@/components/assignment-dates-dialog";
+import { ScheduleCalendarStrip } from "@/components/schedule-calendar-strip";
 import { customerBrandStripes } from "@/lib/brand-customer-colors";
 import { cn } from "@/lib/utils";
 
@@ -244,6 +245,12 @@ function SchedulePage() {
           </div>
         </div>
       </div>
+
+      <ScheduleCalendarStrip
+        rangeLabel={`${format(rangeStart, "MMM d")} – ${format(rangeEnd, "MMM d, yyyy")}`}
+        startStr={startStr}
+        endStr={endStr}
+      />
 
       {view === "people" && (
         <div className="flex gap-1 flex-wrap">

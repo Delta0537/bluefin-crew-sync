@@ -33,6 +33,7 @@ import type { Position } from "@/lib/domain";
 import { PositionBadge } from "@/components/position-badge";
 import { EmptyState } from "@/components/empty-state";
 import { TimeOffDialog, type TimeOffRecord } from "@/components/time-off-dialog";
+import { ManagerAccessDialog } from "@/components/manager-access-dialog";
 
 export const Route = createFileRoute("/_authenticated/personnel")({
   component: PersonnelPage,
@@ -71,6 +72,7 @@ function PersonnelPage() {
   const [deleting, setDeleting] = useState<Employee | null>(null);
   const [timeOffDialogOpen, setTimeOffDialogOpen] = useState(false);
   const [timeOffEdit, setTimeOffEdit] = useState<TimeOffRecord | null>(null);
+  const [managerGateOpen, setManagerGateOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["employees"],
@@ -145,16 +147,22 @@ function PersonnelPage() {
 
   return (
     <div className="p-6 space-y-6 max-w-[1400px] mx-auto">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Personnel</h1>
-          <p className="text-sm text-muted-foreground mt-1">Five-position crew model — Tech, Supervisor, PM, Engineer, Safety.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Active roster, contact info, and leave. Use <strong className="font-medium text-foreground">Add person</strong> to
+            grow the list (requires manager access).
+          </p>
         </div>
-        {canModify && (
-          <Button onClick={() => setCreating(true)}>
-            <Plus className="h-4 w-4" /> Add person
-          </Button>
-        )}
+        <Button
+          onClick={() =>
+            canModify ? setCreating(true) : setManagerGateOpen(true)
+          }
+          className="shrink-0"
+        >
+          <Plus className="h-4 w-4" /> Add person
+        </Button>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -181,8 +189,12 @@ function PersonnelPage() {
           <EmptyState
             icon={<Users className="h-8 w-8" />}
             title="No personnel yet"
-            description={canModify ? "Add your first crew member to start scheduling." : "Ask a manager to add personnel."}
-            action={canModify ? <Button onClick={() => setCreating(true)}><Plus className="h-4 w-4" /> Add person</Button> : undefined}
+            description="Add people here to assign them on jobs and EOB schedules."
+            action={
+              <Button onClick={() => (canModify ? setCreating(true) : setManagerGateOpen(true))}>
+                <Plus className="h-4 w-4" /> Add person
+              </Button>
+            }
           />
         ) : (
           <Table>
@@ -193,7 +205,7 @@ function PersonnelPage() {
                 <TableHead className="hidden md:table-cell">Email</TableHead>
                 <TableHead className="hidden md:table-cell">Phone</TableHead>
                 <TableHead>Status</TableHead>
-                {canModify && <TableHead className="w-20"></TableHead>}
+                <TableHead className="w-28 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -216,11 +228,14 @@ function PersonnelPage() {
                         <Button size="icon" variant="ghost" onClick={() => setEditing(e)} aria-label="Edit">
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" onClick={() => setDeleting(e)} aria-label="Delete">
+                        <Button size="icon" variant="ghost" onClick={() => setDeleting(e)} aria-label="Remove from roster">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
+                  )}
+                  {!canModify && (
+                    <TableCell className="text-xs text-muted-foreground w-28">—</TableCell>
                   )}
                 </TableRow>
               ))}
@@ -356,6 +371,12 @@ function PersonnelPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ManagerAccessDialog
+        open={managerGateOpen}
+        onOpenChange={setManagerGateOpen}
+        actionLabel="add people or change the roster"
+      />
 
       <TimeOffDialog
         open={timeOffDialogOpen}
