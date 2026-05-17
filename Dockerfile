@@ -3,6 +3,10 @@
 FROM node:22-bookworm-slim AS build
 WORKDIR /app
 
+# Node 22 image ships npm 10; `npm ci` there rejects lockfiles produced by npm 11
+# (missing optional peer entries like chokidar / lru-cache / readdirp). Match npm 11+.
+RUN npm install -g npm@11.14.1
+
 COPY package.json package-lock.json ./
 RUN npm ci
 

@@ -76,7 +76,31 @@ HTTPS pushes require a [**Personal Access Token**](https://github.com/settings/t
 
 ## When Railway shows no / empty build logs
 
-1. **Service → Settings → Source** — confirm repo **`Delta0537/bluefin-crew-sync`**, branch **`main`**, **root directory empty** (or exactly `.` if you use a subfolder monorepo).
-2. **Deployments** — click the **failed row** (time stamp), then open **Build Logs** (not only **Deploy Logs**). Try another browser or a private window if the pane stays blank.
-3. **CLI** (from a linked clone): `railway link` → `railway logs` or inspect the latest deployment in the dashboard URL and use **Central Station** / support if the project is stuck.
-4. **This repo** runs **`.github/workflows/docker-build.yml`** on **`main`**: open **GitHub → Actions** for the same commit — if Docker build fails there, the error text is the real failure (network, `npm ci`, `vite build`, etc.).
+This is a **known Railway UI pain point** (especially with Docker / Metal builders): the deployment can fail while the browser pane stays blank or only shows scheduling lines. Treat the dashboard as unreliable for Docker build output.
+
+### 1. Use the Railway CLI (most reliable)
+
+Default **`railway logs`** streams **runtime / deploy** logs. Failed builds usually need **build** logs explicitly:
+
+```bash
+cd bluefin-crew-sync
+railway login          # once per machine
+railway link           # pick project → environment → service
+railway logs --build --latest --lines 400
+```
+
+- **`--build`** — Docker build phase (`npm ci`, `vite build`, etc.).
+- **`--latest`** — include the newest deployment even if it failed or never reached “running”.
+- **`--lines N`** — fetch history without streaming (good when the UI is empty).
+
+After the container is up, runtime issues: **`railway logs`** or **`railway logs --deployment --latest`**.
+
+### 2. Mirror build output on GitHub
+
+This repo runs **`.github/workflows/docker-build.yml`** on **`main`**. Open **GitHub → Actions → Docker build** for the **same commit** as Railway — logs there are plain Docker/`npm ci`/Vite output and often match Railway’s Docker build failures exactly.
+
+### 3. Dashboard checklist
+
+1. **Service → Settings → Source** — repo **`Delta0537/bluefin-crew-sync`**, branch **`main`**, **root directory** empty (repo root unless this service lives in a monorepo subfolder).
+2. **Deployments** → failed row → **Build Logs** tab (not only **Deploy Logs**). Try another browser or a private window if the pane stays blank.
+3. **Metal builders:** some projects report empty Docker logs until **Metal builders** is toggled off and on under project/service build settings (see [Railway Help Station](https://station.railway.com/) threads on blank build logs).
