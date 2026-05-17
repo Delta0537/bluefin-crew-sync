@@ -18,6 +18,16 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
+/** Post–schema-corrections labels plus legacy seed enums still seen on some DBs */
+const ACTIVE_JOB_STATUSES = new Set([
+  "Ongoing",
+  "Upcoming",
+  "Bidding",
+  "In Progress",
+  "Confirmed",
+  "Tentative",
+]);
+
 function Dashboard() {
   const today = format(new Date(), "yyyy-MM-dd");
 
@@ -83,8 +93,7 @@ function Dashboard() {
     }
   }, [utilization, today]);
 
-  const activeJobs =
-    jobsQ.data?.filter((j) => j.status === "Ongoing" || j.status === "Upcoming" || j.status === "Bidding").length ?? 0;
+  const activeJobs = jobsQ.data?.filter((j) => ACTIVE_JOB_STATUSES.has(j.status)).length ?? 0;
   const totalActive = employeesQ.data?.filter((e) => e.active).length ?? 0;
   const assignedToday = new Set(assignmentsQ.data?.map((a) => a.employee_id) ?? []).size;
   const overall = totalActive === 0 ? 0 : Math.round((assignedToday / totalActive) * 100);
@@ -149,7 +158,13 @@ function Dashboard() {
                 <div className="text-xs text-muted-foreground hidden sm:block">
                   {format(new Date(j.mobe_date), "MMM d")} → {format(new Date(j.est_completion_date), "MMM d")}
                 </div>
-                <span className={cn("inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium", JOB_STATUS_TONE[j.status])}>
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium",
+                    (JOB_STATUS_TONE as Record<string, string>)[j.status] ??
+                      "bg-muted text-muted-foreground border-border",
+                  )}
+                >
                   {j.status}
                 </span>
               </div>

@@ -1,6 +1,6 @@
 -- PPC / EOB roster + job seed (CSV export under Naming Information/All relevant Info)
 -- Replaces demo @bluefin.example personnel and legacy snapshot jobs with ~50 PPC-aligned rows.
--- Schedule dates from source grids end Sep 2023; jobs here use explicit Mar–Aug 2026 as “recent + upcoming”.
+-- Schedule dates anchored May–Jun 2026 so default Schedule/Gantt windows show assignments (demo UX).
 -- Role counts: ≥5 Project Manager, Supervisor, Engineer, Safety; remainder Tech.
 --
 -- jobs.job-no column: supports BOTH `fc_number` (after migration 20260514182000) and legacy `customer_number`.
@@ -166,67 +166,67 @@ INSERT INTO public.jobs (
 ) VALUES
 ('204861', 'Shintech', 'Client site — chemical flushing', 'Houston', 'TX', NULL, 'CC'::public.service_type,
  'September grid pick — chemical cleaning scope', NULL, 2, 1, 0,
- DATE '2026-03-04', DATE '2026-03-03', DATE '2026-03-19', DATE '2026-02-01', NULL,
+ DATE '2026-05-13', DATE '2026-05-12', DATE '2026-06-06', DATE '2026-05-01', NULL,
  'Awarded'::public.po_status, true, %s::public.job_status,
  'Imported from Sep 2023 PPC jobs column — FC 204861', 1, 3),
 
 ('204814', 'JSM Pipe flush', 'Pipe flush package', 'Lake Charles', 'LA', NULL, 'CC'::public.service_type,
  'Pipe flush — imported FC board', NULL, 2, 0, 0,
- DATE '2026-03-18', DATE '2026-03-17', DATE '2026-04-08', NULL, NULL,
+ DATE '2026-05-16', DATE '2026-05-15', DATE '2026-06-10', NULL, NULL,
  'Awarded'::public.po_status, false, %s::public.job_status,
  'Sep 2023 FC list — Num personnel 4', 1, 3),
 
 ('204394', 'New Fortress LNG', 'Commissioning support', 'Hackberry', 'LA', NULL, 'PMO'::public.service_type,
  'LNG commissioning — umbrella schedule row', NULL, 3, 1, 0,
- DATE '2026-04-02', DATE '2026-04-01', DATE '2026-04-15', DATE '2026-03-10', NULL,
+ DATE '2026-05-20', DATE '2026-05-19', DATE '2026-06-14', DATE '2026-05-08', NULL,
  'Awarded'::public.po_status, true, %s::public.job_status,
  'Aug/Sep snapshots — peaks at 11 heads on Aug sheet', 2, 9),
 
 ('204708', 'XTO Cowboy', 'Upstream flushing', 'Midland', 'TX', NULL, 'Mult'::public.service_type,
  'Compression / flush scope per HQ board', NULL, 2, 0, 0,
- DATE '2026-04-12', DATE '2026-04-11', DATE '2026-05-02', NULL, NULL,
+ DATE '2026-06-08', DATE '2026-06-07', DATE '2026-06-28', NULL, NULL,
  'Verbal'::public.po_status, false, %s::public.job_status,
  'Rolling FC board carry-over job', 1, 3),
 
 ('203154', 'BlueWater Pennsylvania', 'Marcellus corridor work', 'Montrose', 'PA', NULL, 'Mult'::public.service_type,
  'Remote northeast ops placeholder geography', NULL, 2, 0, 0,
- DATE '2026-05-06', DATE '2026-05-05', DATE '2026-05-26', NULL, NULL,
+ DATE '2026-05-08', DATE '2026-05-07', DATE '2026-06-02', NULL, NULL,
  'None'::public.po_status, false, %s::public.job_status,
  'Imported FC board row — duration blank in CSV', 1, 3),
 
 ('204856', 'Hose Source', 'Shop hose flush loop', 'New Iberia', 'LA', NULL, 'CC'::public.service_type,
  'Hose circulation — August snapshot row', NULL, 1, 0, 0,
- DATE '2026-03-22', DATE '2026-03-21', DATE '2026-03-24', NULL, NULL,
+ DATE '2026-05-03', DATE '2026-05-02', DATE '2026-05-05', NULL, NULL,
  'Awarded'::public.po_status, false, %s::public.job_status,
  'Short turnaround per Aug sheet duration', 0, 1),
 
 ('204601', 'Omega Tech Services', 'Omega Tech Services package', 'Port Arthur', 'TX', NULL, 'CC'::public.service_type,
  'Omega Tech scope — imported FC row', NULL, 2, 1, 0,
- DATE '2026-05-20', DATE '2026-05-19', DATE '2026-06-05', NULL, NULL,
+ DATE '2026-05-22', DATE '2026-05-21', DATE '2026-06-09', NULL, NULL,
  'Awarded'::public.po_status, true, %s::public.job_status,
  'August FC snapshot — crew size 4', 1, 3),
 
 ('204833', 'Oxy Marco Polo', 'Marco Polo offshore logistics', 'Galveston', 'TX', NULL, 'Mult'::public.service_type,
  'Deepwater flushing bundle', NULL, 3, 1, 1,
- DATE '2026-06-03', DATE '2026-06-02', DATE '2026-06-28', NULL, NULL,
+ DATE '2026-06-02', DATE '2026-06-01', DATE '2026-06-27', NULL, NULL,
  'Awarded'::public.po_status, true, %s::public.job_status,
  'Imported FC row — offshore staffing spike', 2, 3),
 
 ('203876', 'RCS Fantasy Island', 'Tank farm flushing package', 'Fourchon', 'LA', NULL, 'CC'::public.service_type,
  'Tank flushing scope — HQ historical twin row', NULL, 3, 2, 0,
- DATE '2026-06-17', DATE '2026-06-16', DATE '2026-07-14', NULL, NULL,
+ DATE '2026-06-10', DATE '2026-06-09', DATE '2026-07-06', NULL, NULL,
  'Awarded'::public.po_status, true, %s::public.job_status,
  'Mirrors HQ Fantasy Island narrative — FC 203876', 2, 4),
 
 ('204554', 'Shell URSA', 'Shell URSA glycol flush', 'Galveston', 'TX', NULL, 'CC'::public.service_type,
  'Glycol flush — PPC Shell Mars/Ursa storyline', NULL, 3, 1, 1,
- DATE '2026-07-08', DATE '2026-07-07', DATE '2026-07-23', DATE '2026-06-01', NULL,
+ DATE '2026-05-26', DATE '2026-05-25', DATE '2026-06-18', DATE '2026-05-15', NULL,
  'Awarded'::public.po_status, true, %s::public.job_status,
  'HQ master notes referenced May mobe prep — staged July here', 2, 2),
 
 ('204890', 'LLOG WhoDat', 'Subsea commissioning assistance', 'Port Fourchon', 'LA', NULL, 'PMO'::public.service_type,
  'WhoDat umbilical / flushing placeholder', NULL, 2, 1, 0,
- DATE '2026-07-29', DATE '2026-07-28', DATE '2026-08-20', NULL, NULL,
+ DATE '2026-06-15', DATE '2026-06-14', DATE '2026-07-08', NULL, NULL,
  'None'::public.po_status, true, %s::public.job_status,
  'August FC snapshot row — durations blank in CSV', 1, 2)
   $ins$,
@@ -245,105 +245,105 @@ INSERT INTO public.jobs (
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-03-04', DATE '2026-03-19'
+SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-05-13', DATE '2026-06-06'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Jason' AND e.last_name = 'Broussard'
 WHERE j.%I = '204861'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Supervisor'::public.position_type, DATE '2026-03-04', DATE '2026-03-19'
+SELECT j.id, e.id, 'Supervisor'::public.position_type, DATE '2026-05-13', DATE '2026-06-06'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Bruce' AND e.last_name = 'Hamilton'
 WHERE j.%I = '204861'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-03-04', DATE '2026-03-19'
+SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-05-13', DATE '2026-06-06'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Bill' AND e.last_name = 'Rouse'
 WHERE j.%I = '204861'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-03-04', DATE '2026-03-19'
+SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-05-13', DATE '2026-06-06'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Bailey' AND e.last_name = 'Garner'
 WHERE j.%I = '204861'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Safety'::public.position_type, DATE '2026-03-04', DATE '2026-03-19'
+SELECT j.id, e.id, 'Safety'::public.position_type, DATE '2026-05-13', DATE '2026-06-06'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Ben' AND e.last_name = 'Carter'
 WHERE j.%I = '204861'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-03-18', DATE '2026-04-08'
+SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-05-16', DATE '2026-06-10'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Pat' AND e.last_name = 'Brennan'
 WHERE j.%I = '204814'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-03-18', DATE '2026-04-08'
+SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-05-16', DATE '2026-06-10'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Charles' AND e.last_name = 'Portier'
 WHERE j.%I = '204814'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-04-02', DATE '2026-04-15'
+SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-05-20', DATE '2026-06-14'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Michael' AND e.last_name = 'Deegan'
 WHERE j.%I = '204394'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Supervisor'::public.position_type, DATE '2026-04-02', DATE '2026-04-15'
+SELECT j.id, e.id, 'Supervisor'::public.position_type, DATE '2026-05-20', DATE '2026-06-14'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Malik' AND e.last_name = 'Broussard'
 WHERE j.%I = '204394'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Engineer'::public.position_type, DATE '2026-04-02', DATE '2026-04-15'
+SELECT j.id, e.id, 'Engineer'::public.position_type, DATE '2026-05-20', DATE '2026-06-14'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Luke' AND e.last_name = 'Osborn'
 WHERE j.%I = '204394'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-04-02', DATE '2026-04-15'
+SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-05-20', DATE '2026-06-14'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Francisco' AND e.last_name = 'Torres'
 WHERE j.%I = '204394'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-04-02', DATE '2026-04-15'
+SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-05-20', DATE '2026-06-14'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Israel' AND e.last_name = 'Garza'
 WHERE j.%I = '204394'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-05-06', DATE '2026-05-26'
+SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-05-11', DATE '2026-06-02'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Crystal' AND e.last_name = 'Yoes'
 WHERE j.%I = '203154'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Supervisor'::public.position_type, DATE '2026-05-06', DATE '2026-05-26'
+SELECT j.id, e.id, 'Supervisor'::public.position_type, DATE '2026-05-11', DATE '2026-06-02'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Bo' AND e.last_name = 'Waggoner'
 WHERE j.%I = '203154'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-05-06', DATE '2026-05-26'
+SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-05-11', DATE '2026-06-02'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Keith' AND e.last_name = 'Faust'
 WHERE j.%I = '203154'
   $q$, job_no);
@@ -371,35 +371,35 @@ WHERE j.%I = '204833'
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-07-08', DATE '2026-07-23'
+SELECT j.id, e.id, 'Project Manager'::public.position_type, DATE '2026-05-26', DATE '2026-06-18'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Greg' AND e.last_name = 'Leger'
 WHERE j.%I = '204554'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Supervisor'::public.position_type, DATE '2026-07-08', DATE '2026-07-23'
+SELECT j.id, e.id, 'Supervisor'::public.position_type, DATE '2026-05-26', DATE '2026-06-18'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Jarrod' AND e.last_name = 'Roy'
 WHERE j.%I = '204554'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Engineer'::public.position_type, DATE '2026-07-08', DATE '2026-07-23'
+SELECT j.id, e.id, 'Engineer'::public.position_type, DATE '2026-05-26', DATE '2026-06-18'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Brant' AND e.last_name = 'Jones'
 WHERE j.%I = '204554'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-07-08', DATE '2026-07-23'
+SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-05-26', DATE '2026-06-18'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Zachary' AND e.last_name = 'Olivier'
 WHERE j.%I = '204554'
   $q$, job_no);
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
-SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-07-08', DATE '2026-07-23'
+SELECT j.id, e.id, 'Tech'::public.position_type, DATE '2026-05-26', DATE '2026-06-18'
 FROM public.jobs j JOIN public.employees e ON e.first_name = 'Sam' AND e.last_name = 'Champagne'
 WHERE j.%I = '204554'
   $q$, job_no);
