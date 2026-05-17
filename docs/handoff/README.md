@@ -13,8 +13,7 @@ This folder supports **active development** across **Cursor, Claude Code, Lovabl
 |------|---------|
 | `CLAUDE-INITIAL-PROMPT.md` | Master brief for **building** the app with Claude alongside Cursor (constraints, stack, security, deploy) |
 | `REPO-STRUCTURE.md` | **Single folder / GitHub vs local layout** (Lovable, `bluefin-crew-sync` vs `bluefin-crew-glass`) |
-| `RAILWAY-DEPLOY.md` | **Railway** — Nitro `node-server`, `PORT`, Supabase env vars, Git deploy |
-| `deploy-session-log.md` | **Dated runbook** — what broke (lockfile/`npm ci`, Node, auth) and what we changed |
+| `RAILWAY-DEPLOY.md` | **Railway** — Nitro `node-server`, `PORT`, Supabase env vars (incl. Supabase → Railway name map), Git deploy, incident table |
 | `VERCEL-DEPLOY.md` | **Optional Vercel** — Nitro vercel preset when `VERCEL=1` |
 | `README.md` | Living snapshot (fill in as the project evolves) |
 | `decisions.md` | Add when created: architecture / schema decisions (ADRs) |

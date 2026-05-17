@@ -10,6 +10,15 @@ const nitroPreset =
 // SSR entry: src/server.ts (error wrapper around TanStack Start).
 export default defineConfig({
   cloudflare: false,
+  // Keep local ports off 8080 so it doesn’t clash with Railway / `PORT=8080` workflows.
+  server: {
+    port: 5173,
+    strictPort: false,
+  },
+  preview: {
+    port: 5174,
+    strictPort: false,
+  },
   plugins: [
     nitro({
       config: { preset: nitroPreset },
