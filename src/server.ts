@@ -66,8 +66,23 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
+function plainHealthResponse(): Response {
+  return new Response("ok", {
+    status: 200,
+    headers: { "content-type": "text/plain; charset=utf-8" },
+  });
+}
+
+function isHealthProbe(request: Request): boolean {
+  const path = new URL(request.url).pathname;
+  return path === "/healthz" || path === "/api/healthz";
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    if (isHealthProbe(request)) {
+      return plainHealthResponse();
+    }
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

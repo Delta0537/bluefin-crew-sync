@@ -35,6 +35,12 @@ Server-only admin paths may use **`SUPABASE_SERVICE_ROLE_KEY`** — set only on 
 
 SSR and auth middleware read **`process.env`**. Define **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_PUBLISHABLE_KEY`** on the Railway service (same as Lovable); they are passed into the Docker **build** via **`Dockerfile`** `ARG`s and are also available at **runtime**, and the server falls back to those names when **`SUPABASE_URL`** / **`SUPABASE_PUBLISHABLE_KEY`** are unset.
 
+## Healthcheck
+
+**`railway.toml`** uses **`healthcheckPath = "/healthz"`**. The response is served directly in **`src/server.ts`** before the TanStack SSR handler runs (plain **200** + **`ok`**). The same handler answers **`/api/healthz`** if you ever point a load balancer there.
+
+TanStack Start’s Nitro production bundle exposes a single catch-all SSR route, so Nitro `src/api/*` or extra `server/routes` files are not registered as separate HTTP routes in this setup.
+
 ## Builder: Docker (auto-detected)
 
 Railway picks up the root **`Dockerfile`** automatically. **`railway.toml`** only sets **deploy** (start command + healthcheck) so builds are not forced through a second builder path that sometimes shows **empty logs** in the UI.

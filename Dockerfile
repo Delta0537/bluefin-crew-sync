@@ -32,5 +32,6 @@ ENV NODE_ENV=production
 COPY --from=build /app/.output ./.output
 
 EXPOSE 8080
-# Railway sets PORT; Nitro reads PORT / NITRO_PORT. Echo helps project-level log aggregation UIs.
+# Railway sets PORT; Nitro reads PORT / NITRO_PORT. Healthcheck: GET /healthz (see src/server.ts).
+# Echo helps project-level log aggregation UIs.
 CMD ["sh", "-c", "echo bluefin-crew-sync-node-server-start && exec node .output/server/index.mjs"]
