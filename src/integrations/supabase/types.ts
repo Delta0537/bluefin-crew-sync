@@ -323,13 +323,7 @@ export type Database = {
         | "Projects Returned-Invoicing"
         | "Other"
         | "Cancelled"
-      po_status:
-        | "Approved"
-        | "Received-Awaiting Approval"
-        | "Verbal"
-        | "Open"
-        | "Emergency"
-        | "Tentative"
+      po_status: "None" | "Verbal" | "Awarded"
       position_type:
         | "Tech"
         | "Supervisor"
@@ -484,14 +478,7 @@ export const Constants = {
         "Other",
         "Cancelled",
       ],
-      po_status: [
-        "Approved",
-        "Received-Awaiting Approval",
-        "Verbal",
-        "Open",
-        "Emergency",
-        "Tentative",
-      ],
+      po_status: ["None", "Verbal", "Awarded"],
       position_type: [
         "Tech",
         "Supervisor",

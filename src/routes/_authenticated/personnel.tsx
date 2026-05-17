@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Calendar } from "lucide-react";
+import { format } from "date-fns";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +32,7 @@ import { POSITIONS } from "@/lib/domain";
 import type { Position } from "@/lib/domain";
 import { PositionBadge } from "@/components/position-badge";
 import { EmptyState } from "@/components/empty-state";
+import { TimeOffDialog, type TimeOffRecord } from "@/components/time-off-dialog";
 
 export const Route = createFileRoute("/_authenticated/personnel")({
   component: PersonnelPage,
@@ -67,6 +69,8 @@ function PersonnelPage() {
   const [editing, setEditing] = useState<Employee | null>(null);
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState<Employee | null>(null);
+  const [timeOffDialogOpen, setTimeOffDialogOpen] = useState(false);
+  const [timeOffEdit, setTimeOffEdit] = useState<TimeOffRecord | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["employees"],
@@ -75,6 +79,42 @@ function PersonnelPage() {
       if (error) throw error;
       return data as Employee[];
     },
+  });
+
+  type TimeOffJoined = TimeOffRecord & {
+    employees: { first_name: string; last_name: string } | null;
+  };
+
+  const { data: timeOffRows, isLoading: timeOffLoading } = useQuery({
+    queryKey: ["time-off-roster"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("time_off")
+        .select("id, employee_id, type, start_date, end_date, notes, employees(first_name, last_name)")
+        .order("start_date", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data as TimeOffJoined[];
+    },
+  });
+
+  const invalidateTimeOffQueries = () => {
+    qc.invalidateQueries({ queryKey: ["time-off-roster"] });
+    qc.invalidateQueries({ queryKey: ["schedule-v2-time-off"] });
+    qc.invalidateQueries({ queryKey: ["time-off-all"] });
+    qc.invalidateQueries({ queryKey: ["time-off-all-for-assign"] });
+  };
+
+  const deleteTimeOffM = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("time_off").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Time off removed");
+      invalidateTimeOffQueries();
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const filtered = (data ?? []).filter((e) => {
@@ -189,6 +229,105 @@ function PersonnelPage() {
         )}
       </Card>
 
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between gap-3 p-4 border-b">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <h2 className="text-sm font-semibold">Time off & leave</h2>
+              <p className="text-xs text-muted-foreground">PTO and other absences show on the EOB schedule. Edit dates here.</p>
+            </div>
+          </div>
+          {canModify && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setTimeOffEdit(null);
+                setTimeOffDialogOpen(true);
+              }}
+            >
+              <Plus className="h-3.5 w-3.5" /> Add time off
+            </Button>
+          )}
+        </div>
+        {timeOffLoading ? (
+          <div className="p-6 space-y-2">
+            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-10" />)}
+          </div>
+        ) : !timeOffRows?.length ? (
+          <div className="p-6 text-sm text-muted-foreground">No time off records yet.</div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Person</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="hidden sm:table-cell">Start</TableHead>
+                <TableHead className="hidden sm:table-cell">End</TableHead>
+                <TableHead className="hidden md:table-cell">Notes</TableHead>
+                {canModify && <TableHead className="w-24" />}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {timeOffRows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell className="font-medium text-sm">
+                    {row.employees
+                      ? `${row.employees.first_name} ${row.employees.last_name}`
+                      : "—"}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-[10px]">{row.type}</Badge>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                    {format(new Date(row.start_date), "MMM d, yyyy")}
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                    {format(new Date(row.end_date), "MMM d, yyyy")}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell text-xs text-muted-foreground max-w-[200px] truncate">
+                    {row.notes ?? "—"}
+                  </TableCell>
+                  {canModify && (
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Edit time off"
+                          onClick={() => {
+                            setTimeOffEdit({
+                              id: row.id,
+                              employee_id: row.employee_id,
+                              type: row.type,
+                              start_date: row.start_date,
+                              end_date: row.end_date,
+                              notes: row.notes,
+                            });
+                            setTimeOffDialogOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Delete time off"
+                          onClick={() => deleteTimeOffM.mutate(row.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </Card>
+
       <EmployeeDialog
         open={creating}
         onOpenChange={(o) => setCreating(o)}
@@ -217,6 +356,17 @@ function PersonnelPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <TimeOffDialog
+        open={timeOffDialogOpen}
+        onOpenChange={(o) => {
+          if (!o) setTimeOffEdit(null);
+          setTimeOffDialogOpen(o);
+        }}
+        record={timeOffEdit ?? undefined}
+        employees={(data ?? []).map((e) => ({ id: e.id, first_name: e.first_name, last_name: e.last_name }))}
+        onSaved={invalidateTimeOffQueries}
+      />
     </div>
   );
 }

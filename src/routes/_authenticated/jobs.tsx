@@ -18,8 +18,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { JobDialog } from "@/components/job-dialog";
-import { JOB_STATUS_TONE, JOB_STATUSES, PO_STATUS_TONE, SERVICE_TYPES } from "@/lib/domain";
-import type { JobStatus, ServiceType } from "@/lib/domain";
+import { JOB_STATUS_TONE, JOB_STATUSES, PO_STATUS_TONE, SERVICE_TYPES, PO_STATUSES } from "@/lib/domain";
+import type { JobStatus, ServiceType, POStatus } from "@/lib/domain";
 import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +38,7 @@ function JobsPage() {
   const [creating, setCreating] = useState(false);
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all">("all");
   const [serviceFilter, setServiceFilter] = useState<ServiceType | "all">("all");
+  const [poFilter, setPoFilter] = useState<POStatus | "all">("all");
   const [q, setQ] = useState("");
 
   useEffect(() => {
@@ -59,6 +60,7 @@ function JobsPage() {
   const filtered = (data ?? []).filter((j) => {
     if (statusFilter !== "all" && j.status !== statusFilter) return false;
     if (serviceFilter !== "all" && j.service_type !== serviceFilter) return false;
+    if (poFilter !== "all" && j.po_status !== poFilter) return false;
     if (q) {
       const s = q.toLowerCase();
       return (
@@ -100,6 +102,17 @@ function JobsPage() {
           <SelectContent>
             <SelectItem value="all">All services</SelectItem>
             {SERVICE_TYPES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={poFilter} onValueChange={(v) => setPoFilter(v as POStatus | "all")}>
+          <SelectTrigger className="w-44"><SelectValue placeholder="PO status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All PO</SelectItem>
+            {PO_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s === "None" ? "None (projecting)" : s}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -168,7 +181,15 @@ function JobsPage() {
         )}
       </Card>
 
-      <JobDialog open={creating} onOpenChange={setCreating} onSaved={() => qc.invalidateQueries({ queryKey: ["jobs"] })} />
+      <JobDialog
+        open={creating}
+        onOpenChange={setCreating}
+        onSaved={() => {
+          qc.invalidateQueries({ queryKey: ["jobs"] });
+          qc.invalidateQueries({ queryKey: ["jobs-all"] });
+          qc.invalidateQueries({ queryKey: ["jobs-recent"] });
+        }}
+      />
     </div>
   );
 }

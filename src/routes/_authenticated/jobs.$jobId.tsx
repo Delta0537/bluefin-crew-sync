@@ -234,7 +234,17 @@ function JobDetail() {
         </div>
       </Card>
 
-      <JobDialog open={editing} onOpenChange={setEditing} job={j} onSaved={() => qc.invalidateQueries({ queryKey: ["job", jobId] })} />
+      <JobDialog
+        open={editing}
+        onOpenChange={setEditing}
+        job={j}
+        onSaved={() => {
+          qc.invalidateQueries({ queryKey: ["job", jobId] });
+          qc.invalidateQueries({ queryKey: ["jobs"] });
+          qc.invalidateQueries({ queryKey: ["jobs-all"] });
+          qc.invalidateQueries({ queryKey: ["jobs-recent"] });
+        }}
+      />
       <AssignCrewDialog
         open={assigning}
         onOpenChange={setAssigning}
@@ -244,6 +254,8 @@ function JobDetail() {
         onSaved={() => {
           qc.invalidateQueries({ queryKey: ["job-assignments", jobId] });
           qc.invalidateQueries({ queryKey: ["assignments-all"] });
+          qc.invalidateQueries({ queryKey: ["assignments-all-for-assign"] });
+          qc.invalidateQueries({ queryKey: ["schedule-v2-assigns"] });
         }}
       />
     </div>

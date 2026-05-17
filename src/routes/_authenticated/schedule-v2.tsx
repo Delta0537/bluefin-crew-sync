@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   addDays,
   eachDayOfInterval,
@@ -10,12 +10,16 @@ import {
   parseISO,
   startOfWeek,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Grid2x2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Grid2x2, Briefcase, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -23,6 +27,8 @@ import { POSITIONS, JOB_STATUS_TONE, PO_STATUS_TONE } from "@/lib/domain";
 import type { Position } from "@/lib/domain";
 import { PositionBadge } from "@/components/position-badge";
 import { EmptyState } from "@/components/empty-state";
+import { TimeOffDialog, type TimeOffRecord } from "@/components/time-off-dialog";
+import { AssignmentDatesDialog } from "@/components/assignment-dates-dialog";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -49,10 +55,30 @@ const TIME_OFF_ABBR: Record<TimeOffType, string> = {
 
 function ScheduleV2Page() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
+  const { canModify } = useAuth();
   const [anchor, setAnchor] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 }),
   );
   const [posFilter, setPosFilter] = useState<Position | "all">("all");
+
+  const [quickEdit, setQuickEdit] = useState<{
+    employeeName: string;
+    day: Date;
+    cell: {
+      label: string;
+      jobId?: string;
+      assignmentId?: string;
+      timeOffId?: string;
+      tone: "assignment" | "off" | "duty";
+    };
+  } | null>(null);
+
+  const [timeOffOpen, setTimeOffOpen] = useState(false);
+  const [timeOffRecord, setTimeOffRecord] = useState<TimeOffRecord | null>(null);
+
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [assignId, setAssignId] = useState<string | null>(null);
 
   const rangeStart = anchor;
   const rangeEnd = addDays(anchor, DAYS - 1);
@@ -128,14 +154,42 @@ function ScheduleV2Page() {
   const gridLoading =
     employeesQ.isLoading || assignsQ.isLoading || timeOffQ.isLoading;
 
+  const invalidateScheduleData = () => {
+    qc.invalidateQueries({ queryKey: ["schedule-v2-assigns"] });
+    qc.invalidateQueries({ queryKey: ["schedule-v2-time-off"] });
+    qc.invalidateQueries({ queryKey: ["time-off-roster"] });
+    qc.invalidateQueries({ queryKey: ["time-off-all"] });
+    qc.invalidateQueries({ queryKey: ["time-off-all-for-assign"] });
+    qc.invalidateQueries({ queryKey: ["assignments-all"] });
+    qc.invalidateQueries({ queryKey: ["assignments-all-for-assign"] });
+    qc.invalidateQueries({ queryKey: ["job-assignments"] });
+  };
+
   // Build per-employee, per-day cell content
   const cellMap = useMemo(() => {
     type CellInfo = {
       label: string;
       jobId?: string;
+      assignmentId?: string;
+      timeOffId?: string;
       tone: "assignment" | "off" | "duty";
     };
     const m = new Map<string, Map<string, CellInfo>>();
+
+    // Time off first so PTO / leave always shows on the grid even if a job assignment overlaps.
+    for (const t of timeOffQ.data ?? []) {
+      if (!m.has(t.employee_id)) m.set(t.employee_id, new Map());
+      const empMap = m.get(t.employee_id)!;
+      const s = parseISO(t.start_date);
+      const e = parseISO(t.end_date);
+      const abbr = TIME_OFF_ABBR[t.type as TimeOffType] ?? t.type.slice(0, 4).toUpperCase();
+      const tone = t.type === "Light Duty" ? "duty" : "off";
+      for (const d of days) {
+        if (d < s || d > e) continue;
+        const key = format(d, "yyyy-MM-dd");
+        empMap.set(key, { label: abbr, tone, timeOffId: t.id });
+      }
+    }
 
     for (const a of assignsQ.data ?? []) {
       if (!m.has(a.employee_id)) m.set(a.employee_id, new Map());
@@ -148,23 +202,12 @@ function ScheduleV2Page() {
         if (d < s || d > e) continue;
         const key = format(d, "yyyy-MM-dd");
         if (!empMap.has(key)) {
-          empMap.set(key, { label, jobId: a.job_id, tone: "assignment" });
-        }
-      }
-    }
-
-    for (const t of timeOffQ.data ?? []) {
-      if (!m.has(t.employee_id)) m.set(t.employee_id, new Map());
-      const empMap = m.get(t.employee_id)!;
-      const s = parseISO(t.start_date);
-      const e = parseISO(t.end_date);
-      const abbr = TIME_OFF_ABBR[t.type as TimeOffType] ?? t.type.slice(0, 4).toUpperCase();
-      const tone = t.type === "Light Duty" ? "duty" : "off";
-      for (const d of days) {
-        if (d < s || d > e) continue;
-        const key = format(d, "yyyy-MM-dd");
-        if (!empMap.has(key)) {
-          empMap.set(key, { label: abbr, tone });
+          empMap.set(key, {
+            label,
+            jobId: a.job_id,
+            assignmentId: a.id,
+            tone: "assignment",
+          });
         }
       }
     }
@@ -204,7 +247,7 @@ function ScheduleV2Page() {
             <h2 className="text-base font-semibold">Personnel grid</h2>
             <p className="text-xs text-muted-foreground">
               {format(rangeStart, "MMM d")} – {format(rangeEnd, "MMM d, yyyy")} ·
-              Cells show FC number when assigned, abbreviated code when on leave
+              Leave/PTO takes priority; click a cell for quick actions
             </p>
           </div>
           <div className="flex items-center gap-1">
@@ -329,27 +372,27 @@ function ScheduleV2Page() {
                               )}
                               style={{ width: CELL_W }}
                             >
-                              {cell &&
-                                (cell.jobId ? (
-                                  <Link
-                                    to="/jobs/$jobId"
-                                    params={{ jobId: cell.jobId }}
-                                    className="text-[9px] font-mono font-semibold text-primary hover:underline px-0.5 truncate max-w-full"
-                                    title={cell.label}
-                                  >
-                                    {cell.label}
-                                  </Link>
-                                ) : (
-                                  <span
-                                    className={cn(
-                                      "text-[9px] font-semibold px-0.5",
-                                      cell.tone === "off" && "text-muted-foreground",
-                                      cell.tone === "duty" && "text-warning",
-                                    )}
-                                  >
-                                    {cell.label}
-                                  </span>
-                                ))}
+                              {cell && (
+                                <button
+                                  type="button"
+                                  title={`${cell.label} — quick edit`}
+                                  className={cn(
+                                    "max-w-full truncate rounded-sm px-0.5 text-[9px] font-semibold transition-colors hover:ring-1 hover:ring-primary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                    cell.jobId && "font-mono text-primary",
+                                    cell.tone === "off" && "text-muted-foreground",
+                                    cell.tone === "duty" && "text-warning",
+                                  )}
+                                  onClick={() =>
+                                    setQuickEdit({
+                                      employeeName: `${emp.first_name} ${emp.last_name}`,
+                                      day: d,
+                                      cell,
+                                    })
+                                  }
+                                >
+                                  {cell.label}
+                                </button>
+                              )}
                             </div>
                           );
                         })}
@@ -364,12 +407,117 @@ function ScheduleV2Page() {
 
         {/* Legend */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[10px] text-muted-foreground">
-          <span>FC# = assigned job number (click to open job)</span>
+          <span>Click a cell — open job, edit PTO, or shift assignment dates (managers)</span>
           <span>PTO / VAC / SICK / MED / BRV = paid leave types</span>
           <span className="text-warning font-medium">LD = Light Duty</span>
           <span>OUT = Out (non-leave absence)</span>
         </div>
       </div>
+
+      <Dialog
+        open={!!quickEdit}
+        onOpenChange={(o) => {
+          if (!o) setQuickEdit(null);
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-base">
+              {quickEdit?.employeeName}
+            </DialogTitle>
+            <DialogDescription>
+              {quickEdit && (
+                <>
+                  {format(quickEdit.day, "EEEE, MMM d, yyyy")} ·{" "}
+                  <span className="font-medium text-foreground">{quickEdit.cell.label}</span>
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 pt-2">
+            {quickEdit?.cell.jobId && (
+              <Button variant="outline" className="justify-start" asChild>
+                <Link
+                  to="/jobs/$jobId"
+                  params={{ jobId: quickEdit.cell.jobId }}
+                  onClick={() => setQuickEdit(null)}
+                >
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  Open job details
+                </Link>
+              </Button>
+            )}
+            {quickEdit?.cell.timeOffId && canModify && (
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={() => {
+                  const t = timeOffQ.data?.find((x) => x.id === quickEdit.cell.timeOffId);
+                  if (!t) return;
+                  setTimeOffRecord({
+                    id: t.id,
+                    employee_id: t.employee_id,
+                    type: t.type as TimeOffType,
+                    start_date: t.start_date,
+                    end_date: t.end_date,
+                    notes: t.notes,
+                  });
+                  setQuickEdit(null);
+                  setTimeOffOpen(true);
+                }}
+              >
+                <CalendarDays className="h-4 w-4 mr-2" />
+                Edit time off
+              </Button>
+            )}
+            {quickEdit?.cell.assignmentId && canModify && (
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={() => {
+                  setAssignId(quickEdit.cell.assignmentId!);
+                  setQuickEdit(null);
+                  setAssignOpen(true);
+                }}
+              >
+                <CalendarDays className="h-4 w-4 mr-2" />
+                Shift assignment dates
+              </Button>
+            )}
+            {quickEdit?.cell.timeOffId && !canModify && (
+              <p className="text-xs text-muted-foreground">Time off — ask a manager to edit.</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setQuickEdit(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <TimeOffDialog
+        open={timeOffOpen}
+        onOpenChange={(o) => {
+          if (!o) setTimeOffRecord(null);
+          setTimeOffOpen(o);
+        }}
+        record={timeOffRecord ?? undefined}
+        employees={(employeesQ.data ?? []).map((e) => ({
+          id: e.id,
+          first_name: e.first_name,
+          last_name: e.last_name,
+        }))}
+        onSaved={invalidateScheduleData}
+      />
+
+      <AssignmentDatesDialog
+        open={assignOpen}
+        onOpenChange={(o) => {
+          if (!o) setAssignId(null);
+          setAssignOpen(o);
+        }}
+        assignmentId={assignId}
+        onSaved={invalidateScheduleData}
+      />
     </div>
   );
 }
@@ -417,7 +565,7 @@ function JobsSection({
                 <TableHead className="hidden sm:table-cell w-20">Svc</TableHead>
                 <TableHead className="hidden md:table-cell w-24">PM</TableHead>
                 <TableHead className="hidden lg:table-cell w-20">Mobe</TableHead>
-                <TableHead className="w-24">PO</TableHead>
+                <TableHead className="w-28">PO status</TableHead>
                 <TableHead className="hidden xl:table-cell">Notes</TableHead>
               </TableRow>
             </TableHeader>

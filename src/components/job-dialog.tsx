@@ -51,7 +51,7 @@ const schema = z
     tsm_psm: z.string().max(200).optional().or(z.literal("")),
     booking_date: z.string().optional().or(z.literal("")),
     service_order: z.string().max(80).optional().or(z.literal("")),
-    po_status: z.enum(["Approved", "Received-Awaiting Approval", "Verbal", "Open", "Emergency", "Tentative"]),
+    po_status: z.enum(["None", "Verbal", "Awarded"]),
     equipment_asset: z.string().trim().min(1).max(300),
     service_type: z.enum(["HVOF", "HVOFS", "OSPM", "CFS", "C-Out", "Other"]),
     mfu_type: z.string().max(120).optional().or(z.literal("")),
@@ -84,7 +84,7 @@ const schema = z
   });
 
 const blank: Partial<JobRow> = {
-  po_status: "Open",
+  po_status: "None",
   service_type: "HVOF",
   status: "Upcoming",
   mfu_qty: 1,
@@ -202,10 +202,14 @@ export function JobDialog({
               <Input value={form.service_order ?? ""} onChange={(e) => set("service_order", e.target.value)} />
             </Field>
             <Field label="PO status">
-              <Select value={form.po_status ?? "Open"} onValueChange={(v) => set("po_status", v as POStatus)}>
+              <Select value={form.po_status ?? "None"} onValueChange={(v) => set("po_status", v as POStatus)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {PO_STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  {PO_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s === "None" ? "None (projecting)" : s === "Verbal" ? "Verbal" : "Awarded"}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </Field>

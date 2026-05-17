@@ -8,7 +8,8 @@ export type TimeOffType = Database["public"]["Enums"]["time_off_type"];
 
 export const POSITIONS: Position[] = ["Tech", "Supervisor", "Project Manager", "Engineer", "Safety"];
 export const SERVICE_TYPES: ServiceType[] = ["HVOF", "HVOFS", "OSPM", "CFS", "C-Out", "Other"];
-export const PO_STATUSES: POStatus[] = ["Approved", "Received-Awaiting Approval", "Verbal", "Open", "Emergency", "Tentative"];
+/** Pipeline PO: projecting (None), verbal go-ahead, or awarded contract. */
+export const PO_STATUSES: POStatus[] = ["None", "Verbal", "Awarded"];
 export const JOB_STATUSES: JobStatus[] = [
   "Upcoming",
   "Ongoing",
@@ -49,10 +50,7 @@ export const JOB_STATUS_TONE: Record<JobStatus, string> = {
 };
 
 export const PO_STATUS_TONE: Record<POStatus, string> = {
-  Approved: "bg-success/15 text-success border-success/30",
-  "Received-Awaiting Approval": "bg-warning/20 text-warning-foreground dark:text-warning border-warning/40",
-  Verbal: "bg-accent text-accent-foreground border-border",
-  Open: "bg-muted text-muted-foreground border-border",
-  Emergency: "bg-destructive/15 text-destructive border-destructive/30",
-  Tentative: "bg-muted text-muted-foreground border-border",
+  None: "bg-muted text-muted-foreground border-border",
+  Verbal: "bg-warning/15 text-warning-foreground border-warning/35 dark:text-warning",
+  Awarded: "bg-success/15 text-success border-success/30",
 };

@@ -83,7 +83,8 @@ function Dashboard() {
     }
   }, [utilization, today]);
 
-  const activeJobs = jobsQ.data?.filter((j) => j.status === "In Progress" || j.status === "Confirmed").length ?? 0;
+  const activeJobs =
+    jobsQ.data?.filter((j) => j.status === "Ongoing" || j.status === "Upcoming" || j.status === "Bidding").length ?? 0;
   const totalActive = employeesQ.data?.filter((e) => e.active).length ?? 0;
   const assignedToday = new Set(assignmentsQ.data?.map((a) => a.employee_id) ?? []).size;
   const overall = totalActive === 0 ? 0 : Math.round((assignedToday / totalActive) * 100);
