@@ -1,10 +1,11 @@
-# https://docs.railway.com/guides/config-as-code
-# Nixpacks runs `npm install`, `npm run build`, then this start command.
+# Docker build: pins Node 22 and avoids Nixpacks detection quirks.
+# https://docs.railway.com/guides/dockerfiles
 
 [build]
-builder = "NIXPACKS"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "npm run start"
+startCommand = "node .output/server/index.mjs"
 healthcheckPath = "/"
-healthcheckTimeout = 60
+healthcheckTimeout = 120

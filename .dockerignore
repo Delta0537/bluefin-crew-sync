@@ -1,0 +1,17 @@
+node_modules
+.output
+.nitro
+.vercel
+dist
+.tanstack
+.git
+.github
+*.md
+.env
+.env.*
+!.env.example
+.vscode
+.idea
+*.xlsm
+coverage
+.DS_Store

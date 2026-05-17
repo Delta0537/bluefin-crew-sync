@@ -20,7 +20,7 @@ Optional: set **`VERCEL=1`** during build only if you deploy to Vercel (Nitro’
 
 ## Node version
 
-**Vite 7** requires **Node ^20.19.0 or ≥22.12.0**. The repo pins **`NIXPACKS_NODE_VERSION=22`** in **`nixpacks.toml`** so Railway’s Nixpacks builder does not use the old default (often Node 18). If a deploy still fails with an engine error, try adding **`NIXPACKS_NODE_VERSION=23`** or **`20`** in Railway variables and redeploy.
+**Dockerfile** uses **Node 22** (`node:22-bookworm-slim`) so **Vite 7** engine requirements are met without relying on Nixpacks. **`nixpacks.toml`** / **`.nvmrc`** remain useful for local tooling or if you switch the service back to Nixpacks.
 
 ## Environment variables
 
@@ -35,12 +35,16 @@ Server-only admin paths may use **`SUPABASE_SERVICE_ROLE_KEY`** — set only on 
 
 Optional fallbacks in client code: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`.
 
+## Builder: Docker (not Nixpacks)
+
+**`railway.toml`** sets **`builder = "DOCKERFILE"`** and uses the repo **`Dockerfile`** (Node **22**, `npm ci`, `npm run build`, then `node .output/server/index.mjs`). This avoids Nixpacks/Vite/Node auto-detection failures.
+
 ## New project (GUI)
 
 1. [railway.com](https://railway.com) → **New Project** → **Deploy from GitHub repo** → **`Delta0537/bluefin-crew-sync`** (or your fork).
-2. Root directory: repo root (where `package.json` lives).
-3. Railway runs **`npm install`**, **`npm run build`**, **`npm start`** (Nixpacks; **`railway.toml`** pins the start command).
-4. Add the Supabase variables; redeploy after changing secrets.
+2. Root directory: repo root (where `package.json` and `Dockerfile` live).
+3. Add **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_PUBLISHABLE_KEY`** (and any other `VITE_*`) **before** or with the first deploy so **`npm run build`** inside Docker can embed them.
+4. Railway builds the image from **`Dockerfile`** and runs **`startCommand`** from **`railway.toml`** (same as Dockerfile `CMD`).
 
 ## Local check
 
