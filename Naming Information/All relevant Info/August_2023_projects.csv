@@ -1,0 +1,16 @@
+Job_Number,Job_Name_Location,Num_Personnel,Duration_Days
+204861,Stella Maris ,1,2
+204856,Hose Source,2,0
+204601,Omega Tech Services,4,16
+204394,New Fortress LNG commissioning ,11,22
+204833,Oxy Marco Polo,5,
+203876,RCS Fantasy Island,6,
+204708,XTO Cowboy,4,
+204554,Shell URSA ,4,
+203154,BlueWater Pennsylvania,4,
+204890,LLOG WhoDat,,
+,PTO,,
+"*Colors in the job number boxes correlate with the colors on the schedule.
+**PPC denotes a pickling, passivating and cleaning division project (Mike D.)
+***RP denotes a River Parish Project
+****US denotes an umbilical services project.",,,

@@ -1,0 +1,11 @@
+Job_Number,Job_Name_Location,Num_Personnel,Duration_Days
+204861,Shintech,4,15
+204814,JSM Pipe flush ,4,21
+204394,New Fortress LNG commissioning ,3,13
+204708,XTO Cowboy,4,
+203154,BlueWater Pennsylvania,4,
+,PTO,,
+"*Colors in the job number boxes correlate with the colors on the schedule.
+**PPC denotes a pickling, passivating and cleaning division project (Mike D.)
+***RP denotes a River Parish Project
+****US denotes an umbilical services project.",,,

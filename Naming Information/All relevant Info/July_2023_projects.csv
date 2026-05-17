@@ -1,0 +1,10 @@
+Job_Number,Job_Name_Location,Num_Personnel,Duration_Days
+204861,Stella Maris ,1,3
+204856,Hose Source,2,1
+204601,Omega Tech Services,4,11
+204394,New Fortress LNG commissioning ,11,28
+,PTO,,
+"*Colors in the job number boxes correlate with the colors on the schedule.
+**PPC denotes a pickling, passivating and cleaning division project (Mike D.)
+***RP denotes a River Parish Project
+****US denotes an umbilical services project.",,,

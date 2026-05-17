@@ -1,0 +1,24 @@
+Job_Number,Job_Name_Location,Num_Personnel,Duration_Days
+202416,Kiewit Seal Gas,5,17
+202857,Kiewit Amine System Degrease,6,11
+202857,Kiewit Amine Frac Tank Neutralization,,
+203189,Callan Mayine Gen OMay Bradley Hydraulic Flush,3,10
+203159,Hose Source Hose Flush (shop),1,1
+203254,Clean Tank Agnes Candies,,
+202964,AGI Shell Mays MEOH Skid Flush,,
+203029,New Industries Tubing Flush,1,1
+203103,LLOG Dome Patrol Umbillical Displacement - Kevin,3,
+203200,LLOG Dome Patrol Umbillical Displacement - James,,
+203190,Talos HP1 Hose Flushing (shop),,
+202935,BHP Shenzi Topsides and Tank Flushing,,
+202943,BHP Shenzi Umbillical Displacement,,
+203211,BHP Shenzi CI to SHCI Transition,,
+202803,LLOG Taggert Umbilical Pre-Commissioning,,
+202769,JAX LNG Pre-Commissioning Cleaning,,
+203138,Shell Ursa Glycol Flush,8,5
+,Shell Mays VRU Flush,,
+,PTO,,
+"*Colors in the job number boxes correlate with the colors on the schedule.
+**PPC denotes a pickling, passivating and cleaning division project (Mike D.)
+***RP denotes a River Parish Project
+****US denotes an umbilical services project.",,,
