@@ -4,6 +4,9 @@
 -- Role counts: ≥5 Project Manager, Supervisor, Engineer, Safety; remainder Tech.
 --
 -- jobs.job-no column: supports BOTH `fc_number` (after migration 20260514182000) and legacy `customer_number`.
+-- po_status: uses pipeline enum None | Verbal | Awarded (migration 20260517140000_po_status_pipeline.sql).
+-- job_status: supports BOTH operational enum (20260514182000: Ongoing, Upcoming, …) and legacy seed enum
+--   (In Progress, Tentative, Completed, …) by detecting pg_enum labels at runtime.
 
 -- ------------------------------------------------------------
 -- Remove demo seed rows from initial migration
@@ -119,6 +122,10 @@ INSERT INTO public.employees (first_name, last_name, position, email, phone, hir
 DO $$
 DECLARE
   job_no text;
+  job_status_kind text;
+  js_active text;
+  js_pipeline text;
+  js_closed text;
 BEGIN
   SELECT CASE
     WHEN EXISTS (
@@ -127,6 +134,27 @@ BEGIN
     ) THEN 'fc_number'
     ELSE 'customer_number'
   END INTO job_no;
+
+  SELECT CASE WHEN EXISTS (
+    SELECT 1
+    FROM pg_enum e
+    INNER JOIN pg_type t ON t.oid = e.enumtypid
+    INNER JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'public'
+      AND t.typname = 'job_status'
+      AND e.enumlabel = 'Ongoing'
+  ) THEN 'new' ELSE 'legacy' END
+  INTO job_status_kind;
+
+  IF job_status_kind = 'new' THEN
+    js_active := 'Ongoing';
+    js_pipeline := 'Upcoming';
+    js_closed := 'Projects Returned-Invoicing';
+  ELSE
+    js_active := 'In Progress';
+    js_pipeline := 'Tentative';
+    js_closed := 'Completed';
+  END IF;
 
   EXECUTE format($ins$
 INSERT INTO public.jobs (
@@ -139,69 +167,81 @@ INSERT INTO public.jobs (
 ('204861', 'Shintech', 'Client site — chemical flushing', 'Houston', 'TX', NULL, 'CC'::public.service_type,
  'September grid pick — chemical cleaning scope', NULL, 2, 1, 0,
  DATE '2026-03-04', DATE '2026-03-03', DATE '2026-03-19', DATE '2026-02-01', NULL,
- 'Approved'::public.po_status, true, 'Ongoing'::public.job_status,
+ 'Awarded'::public.po_status, true, %s::public.job_status,
  'Imported from Sep 2023 PPC jobs column — FC 204861', 1, 3),
 
 ('204814', 'JSM Pipe flush', 'Pipe flush package', 'Lake Charles', 'LA', NULL, 'CC'::public.service_type,
  'Pipe flush — imported FC board', NULL, 2, 0, 0,
  DATE '2026-03-18', DATE '2026-03-17', DATE '2026-04-08', NULL, NULL,
- 'Received-Awaiting Approval'::public.po_status, false, 'Ongoing'::public.job_status,
+ 'Awarded'::public.po_status, false, %s::public.job_status,
  'Sep 2023 FC list — Num personnel 4', 1, 3),
 
 ('204394', 'New Fortress LNG', 'Commissioning support', 'Hackberry', 'LA', NULL, 'PMO'::public.service_type,
  'LNG commissioning — umbrella schedule row', NULL, 3, 1, 0,
  DATE '2026-04-02', DATE '2026-04-01', DATE '2026-04-15', DATE '2026-03-10', NULL,
- 'Approved'::public.po_status, true, 'Upcoming'::public.job_status,
+ 'Awarded'::public.po_status, true, %s::public.job_status,
  'Aug/Sep snapshots — peaks at 11 heads on Aug sheet', 2, 9),
 
 ('204708', 'XTO Cowboy', 'Upstream flushing', 'Midland', 'TX', NULL, 'Mult'::public.service_type,
  'Compression / flush scope per HQ board', NULL, 2, 0, 0,
  DATE '2026-04-12', DATE '2026-04-11', DATE '2026-05-02', NULL, NULL,
- 'Verbal'::public.po_status, false, 'Upcoming'::public.job_status,
+ 'Verbal'::public.po_status, false, %s::public.job_status,
  'Rolling FC board carry-over job', 1, 3),
 
 ('203154', 'BlueWater Pennsylvania', 'Marcellus corridor work', 'Montrose', 'PA', NULL, 'Mult'::public.service_type,
  'Remote northeast ops placeholder geography', NULL, 2, 0, 0,
  DATE '2026-05-06', DATE '2026-05-05', DATE '2026-05-26', NULL, NULL,
- 'Open'::public.po_status, false, 'Upcoming'::public.job_status,
+ 'None'::public.po_status, false, %s::public.job_status,
  'Imported FC board row — duration blank in CSV', 1, 3),
 
 ('204856', 'Hose Source', 'Shop hose flush loop', 'New Iberia', 'LA', NULL, 'CC'::public.service_type,
  'Hose circulation — August snapshot row', NULL, 1, 0, 0,
  DATE '2026-03-22', DATE '2026-03-21', DATE '2026-03-24', NULL, NULL,
- 'Approved'::public.po_status, false, 'Projects Returned-Invoicing'::public.job_status,
+ 'Awarded'::public.po_status, false, %s::public.job_status,
  'Short turnaround per Aug sheet duration', 0, 1),
 
 ('204601', 'Omega Tech Services', 'Omega Tech Services package', 'Port Arthur', 'TX', NULL, 'CC'::public.service_type,
  'Omega Tech scope — imported FC row', NULL, 2, 1, 0,
  DATE '2026-05-20', DATE '2026-05-19', DATE '2026-06-05', NULL, NULL,
- 'Approved'::public.po_status, true, 'Upcoming'::public.job_status,
+ 'Awarded'::public.po_status, true, %s::public.job_status,
  'August FC snapshot — crew size 4', 1, 3),
 
 ('204833', 'Oxy Marco Polo', 'Marco Polo offshore logistics', 'Galveston', 'TX', NULL, 'Mult'::public.service_type,
  'Deepwater flushing bundle', NULL, 3, 1, 1,
  DATE '2026-06-03', DATE '2026-06-02', DATE '2026-06-28', NULL, NULL,
- 'Emergency'::public.po_status, true, 'Upcoming'::public.job_status,
+ 'Awarded'::public.po_status, true, %s::public.job_status,
  'Imported FC row — offshore staffing spike', 2, 3),
 
 ('203876', 'RCS Fantasy Island', 'Tank farm flushing package', 'Fourchon', 'LA', NULL, 'CC'::public.service_type,
  'Tank flushing scope — HQ historical twin row', NULL, 3, 2, 0,
  DATE '2026-06-17', DATE '2026-06-16', DATE '2026-07-14', NULL, NULL,
- 'Approved'::public.po_status, true, 'Upcoming'::public.job_status,
+ 'Awarded'::public.po_status, true, %s::public.job_status,
  'Mirrors HQ Fantasy Island narrative — FC 203876', 2, 4),
 
 ('204554', 'Shell URSA', 'Shell URSA glycol flush', 'Galveston', 'TX', NULL, 'CC'::public.service_type,
  'Glycol flush — PPC Shell Mars/Ursa storyline', NULL, 3, 1, 1,
  DATE '2026-07-08', DATE '2026-07-07', DATE '2026-07-23', DATE '2026-06-01', NULL,
- 'Approved'::public.po_status, true, 'Upcoming'::public.job_status,
+ 'Awarded'::public.po_status, true, %s::public.job_status,
  'HQ master notes referenced May mobe prep — staged July here', 2, 2),
 
 ('204890', 'LLOG WhoDat', 'Subsea commissioning assistance', 'Port Fourchon', 'LA', NULL, 'PMO'::public.service_type,
  'WhoDat umbilical / flushing placeholder', NULL, 2, 1, 0,
  DATE '2026-07-29', DATE '2026-07-28', DATE '2026-08-20', NULL, NULL,
- 'Tentative'::public.po_status, true, 'Upcoming'::public.job_status,
+ 'None'::public.po_status, true, %s::public.job_status,
  'August FC snapshot row — durations blank in CSV', 1, 2)
-  $ins$, job_no);
+  $ins$,
+    job_no,
+    quote_literal(js_active),
+    quote_literal(js_active),
+    quote_literal(js_pipeline),
+    quote_literal(js_pipeline),
+    quote_literal(js_pipeline),
+    quote_literal(js_closed),
+    quote_literal(js_pipeline),
+    quote_literal(js_pipeline),
+    quote_literal(js_pipeline),
+    quote_literal(js_pipeline),
+    quote_literal(js_pipeline));
 
   EXECUTE format($q$
 INSERT INTO public.job_assignments (job_id, employee_id, role_on_job, start_date, end_date)
