@@ -31,6 +31,7 @@ import type { Position } from "@/lib/domain";
 import { PositionBadge } from "@/components/position-badge";
 import { EmptyState } from "@/components/empty-state";
 import { AssignmentDatesDialog } from "@/components/assignment-dates-dialog";
+import { customerBrandStripes } from "@/lib/brand-customer-colors";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/schedule")({
@@ -39,38 +40,6 @@ export const Route = createFileRoute("/_authenticated/schedule")({
 
 const DAYS = 28;
 const COL_PX = 36;
-
-/**
- * A small, accessible palette used to color-code customers / projects.
- * We hash the customer name to one of these so the same customer always
- * gets the same color across rows, no matter how many jobs they have.
- */
-const CUSTOMER_PALETTE: { bg: string; bar: string; text: string; ring: string }[] = [
-  { bg: "bg-sky-500/15",     bar: "bg-sky-500",     text: "text-sky-700 dark:text-sky-300",         ring: "ring-sky-500/40" },
-  { bg: "bg-emerald-500/15", bar: "bg-emerald-500", text: "text-emerald-700 dark:text-emerald-300", ring: "ring-emerald-500/40" },
-  { bg: "bg-amber-500/15",   bar: "bg-amber-500",   text: "text-amber-700 dark:text-amber-300",     ring: "ring-amber-500/40" },
-  { bg: "bg-rose-500/15",    bar: "bg-rose-500",    text: "text-rose-700 dark:text-rose-300",       ring: "ring-rose-500/40" },
-  { bg: "bg-violet-500/15",  bar: "bg-violet-500",  text: "text-violet-700 dark:text-violet-300",   ring: "ring-violet-500/40" },
-  { bg: "bg-cyan-500/15",    bar: "bg-cyan-500",    text: "text-cyan-700 dark:text-cyan-300",       ring: "ring-cyan-500/40" },
-  { bg: "bg-orange-500/15",  bar: "bg-orange-500",  text: "text-orange-700 dark:text-orange-300",   ring: "ring-orange-500/40" },
-  { bg: "bg-lime-500/15",    bar: "bg-lime-500",    text: "text-lime-700 dark:text-lime-300",       ring: "ring-lime-500/40" },
-  { bg: "bg-pink-500/15",    bar: "bg-pink-500",    text: "text-pink-700 dark:text-pink-300",       ring: "ring-pink-500/40" },
-  { bg: "bg-indigo-500/15",  bar: "bg-indigo-500",  text: "text-indigo-700 dark:text-indigo-300",   ring: "ring-indigo-500/40" },
-];
-
-function hashString(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (h << 5) - h + s.charCodeAt(i);
-    h |= 0;
-  }
-  return Math.abs(h);
-}
-
-function customerColor(name: string | null | undefined) {
-  const key = (name ?? "").trim() || "Unassigned";
-  return CUSTOMER_PALETTE[hashString(key) % CUSTOMER_PALETTE.length];
-}
 
 type ViewMode = "people" | "projects";
 
@@ -221,7 +190,7 @@ function SchedulePage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Schedule</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {format(rangeStart, "MMM d")} – {format(rangeEnd, "MMM d, yyyy")} · color-coded by customer
+            {format(rangeStart, "MMM d")} – {format(rangeEnd, "MMM d, yyyy")} · customer bars use GATE / BlueFin brand colors
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -342,7 +311,7 @@ function SchedulePage() {
       {/* Legend */}
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
         <span>
-          Each customer has a unique color; rows alternate shading for readability.
+          Each customer keeps a consistent tint (navy, lime, BlueFin sky); rows alternate for readability.
         </span>
         <span>Click a bar to open the job.</span>
         {canModify && (
@@ -463,7 +432,7 @@ function PeopleView({
                     days.length,
                   );
                   if (!bar) return null;
-                  const c = customerColor(a.jobs?.customer_name);
+                  const c = customerBrandStripes(a.jobs?.customer_name);
                   return (
                     <div
                       key={a.id}
@@ -554,7 +523,7 @@ function ProjectsView({
       <div className="min-w-fit">
         <HeaderRow days={days} />
         {groups.map((g) => {
-          const c = customerColor(g.customer);
+          const c = customerBrandStripes(g.customer);
           return (
             <div key={g.jobId} className="border-b last:border-b-0">
               {/* Project header */}

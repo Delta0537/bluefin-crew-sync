@@ -29,6 +29,7 @@ import { PositionBadge } from "@/components/position-badge";
 import { EmptyState } from "@/components/empty-state";
 import { TimeOffDialog, type TimeOffRecord } from "@/components/time-off-dialog";
 import { AssignmentDatesDialog } from "@/components/assignment-dates-dialog";
+import { customerBrandCellClasses } from "@/lib/brand-customer-colors";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -71,6 +72,7 @@ function ScheduleV2Page() {
       assignmentId?: string;
       timeOffId?: string;
       tone: "assignment" | "off" | "duty";
+      customerName?: string;
     };
   } | null>(null);
 
@@ -173,6 +175,7 @@ function ScheduleV2Page() {
       assignmentId?: string;
       timeOffId?: string;
       tone: "assignment" | "off" | "duty";
+      customerName?: string;
     };
     const m = new Map<string, Map<string, CellInfo>>();
 
@@ -196,8 +199,10 @@ function ScheduleV2Page() {
       const empMap = m.get(a.employee_id)!;
       const s = parseISO(a.start_date);
       const e = parseISO(a.end_date);
-      const rawFc: string = (a.jobs as { fc_number?: string } | null)?.fc_number ?? "";
+      const jobRow = a.jobs as { fc_number?: string; customer_name?: string } | null;
+      const rawFc: string = jobRow?.fc_number ?? "";
       const label = rawFc.length > 10 ? rawFc.slice(-7) : rawFc || a.job_id.slice(0, 7);
+      const customerName = jobRow?.customer_name;
       for (const d of days) {
         if (d < s || d > e) continue;
         const key = format(d, "yyyy-MM-dd");
@@ -207,6 +212,7 @@ function ScheduleV2Page() {
             jobId: a.job_id,
             assignmentId: a.id,
             tone: "assignment",
+            customerName,
           });
         }
       }
@@ -377,10 +383,12 @@ function ScheduleV2Page() {
                                   type="button"
                                   title={`${cell.label} — quick edit`}
                                   className={cn(
-                                    "max-w-full truncate rounded-sm px-0.5 text-[9px] font-semibold transition-colors hover:ring-1 hover:ring-primary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                                    cell.jobId && "font-mono text-primary",
-                                    cell.tone === "off" && "text-muted-foreground",
-                                    cell.tone === "duty" && "text-warning",
+                                    cell.tone === "assignment" &&
+                                      cn(customerBrandCellClasses(cell.customerName), "font-mono"),
+                                    cell.tone === "off" &&
+                                      "max-w-full truncate rounded-sm px-0.5 text-[9px] font-semibold text-muted-foreground transition-colors hover:ring-1 hover:ring-muted-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                    cell.tone === "duty" &&
+                                      "max-w-full truncate rounded-sm px-0.5 text-[9px] font-semibold text-warning transition-colors hover:ring-1 hover:ring-warning/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                                   )}
                                   onClick={() =>
                                     setQuickEdit({
@@ -407,6 +415,7 @@ function ScheduleV2Page() {
 
         {/* Legend */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[10px] text-muted-foreground">
+          <span>Assignment cells use GATE / BlueFin brand tints by client (same hash as Schedule).</span>
           <span>Click a cell — open job, edit PTO, or shift assignment dates (managers)</span>
           <span>PTO / VAC / SICK / MED / BRV = paid leave types</span>
           <span className="text-warning font-medium">LD = Light Duty</span>
