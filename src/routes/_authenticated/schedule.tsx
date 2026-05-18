@@ -8,7 +8,6 @@ import {
   format,
   isToday,
   isWeekend,
-  parseISO,
   startOfWeek,
 } from "date-fns";
 import {
@@ -33,7 +32,7 @@ import { EmptyState } from "@/components/empty-state";
 import { AssignmentDatesDialog } from "@/components/assignment-dates-dialog";
 import { ScheduleCalendarStrip } from "@/components/schedule-calendar-strip";
 import { customerBrandStripes } from "@/lib/brand-customer-colors";
-import { cn } from "@/lib/utils";
+import { cn, parseDateOnlyLocal } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/schedule")({
   component: SchedulePage,
@@ -135,17 +134,18 @@ function SchedulePage() {
     };
     const map = new Map<string, Grp>();
     for (const a of assignsQ.data ?? []) {
-      const job = (a.jobs as {
-        id?: string;
-        fc_number?: string;
-        customer_name?: string;
-        site_name?: string;
-        site_city?: string;
-        site_state?: string;
-        service_type?: string;
-        po_status?: string;
-        status?: string;
-      } | null) ?? null;
+      const job =
+        (a.jobs as {
+          id?: string;
+          fc_number?: string;
+          customer_name?: string;
+          site_name?: string;
+          site_city?: string;
+          site_state?: string;
+          service_type?: string;
+          po_status?: string;
+          status?: string;
+        } | null) ?? null;
       const id = a.job_id;
       if (!map.has(id)) {
         map.set(id, {
@@ -164,16 +164,11 @@ function SchedulePage() {
       }
       map.get(id)!.assigns.push(a);
     }
-    return Array.from(map.values()).sort((a, b) =>
-      a.customer.localeCompare(b.customer),
-    );
+    return Array.from(map.values()).sort((a, b) => a.customer.localeCompare(b.customer));
   }, [assignsQ.data]);
 
   const empById = useMemo(() => {
-    const m = new Map<
-      string,
-      { first_name: string; last_name: string; position: Position }
-    >();
+    const m = new Map<string, { first_name: string; last_name: string; position: Position }>();
     for (const e of employeesQ.data ?? []) {
       m.set(e.id, {
         first_name: e.first_name,
@@ -191,7 +186,8 @@ function SchedulePage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Schedule</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {format(rangeStart, "MMM d")} – {format(rangeEnd, "MMM d, yyyy")} · customer bars use GATE / BlueFin brand colors
+            {format(rangeStart, "MMM d")} – {format(rangeEnd, "MMM d, yyyy")} · customer bars use
+            GATE / BlueFin brand colors
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -202,9 +198,7 @@ function SchedulePage() {
               onClick={() => setView("people")}
               className={cn(
                 "px-2.5 py-1 text-xs inline-flex items-center gap-1 transition-colors",
-                view === "people"
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-accent",
+                view === "people" ? "bg-primary text-primary-foreground" : "hover:bg-accent",
               )}
             >
               <LayoutGrid className="h-3.5 w-3.5" /> By person
@@ -214,9 +208,7 @@ function SchedulePage() {
               onClick={() => setView("projects")}
               className={cn(
                 "px-2.5 py-1 text-xs inline-flex items-center gap-1 border-l transition-colors",
-                view === "projects"
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-accent",
+                view === "projects" ? "bg-primary text-primary-foreground" : "hover:bg-accent",
               )}
             >
               <FolderKanban className="h-3.5 w-3.5" /> By project
@@ -229,17 +221,11 @@ function SchedulePage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() =>
-                setAnchor(startOfWeek(new Date(), { weekStartsOn: 1 }))
-              }
+              onClick={() => setAnchor(startOfWeek(new Date(), { weekStartsOn: 1 }))}
             >
               Today
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAnchor((a) => addDays(a, 7))}
-            >
+            <Button variant="outline" size="sm" onClick={() => setAnchor((a) => addDays(a, 7))}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -318,7 +304,8 @@ function SchedulePage() {
       {/* Legend */}
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
         <span>
-          Each customer keeps a consistent tint (navy, lime, BlueFin sky); rows alternate for readability.
+          Each customer keeps a consistent tint (navy, lime, BlueFin sky); rows alternate for
+          readability.
         </span>
         <span>Click a bar to open the job.</span>
         {canModify && (
@@ -391,10 +378,7 @@ function PeopleView({
           return (
             <div
               key={emp.id}
-              className={cn(
-                "flex border-b transition-colors hover:bg-accent/40",
-                stripe,
-              )}
+              className={cn("flex border-b transition-colors hover:bg-accent/40", stripe)}
             >
               <div className="w-60 shrink-0 px-3 py-2 border-r flex items-center gap-2 min-w-0">
                 <PositionBadge position={emp.position} short />
@@ -415,29 +399,19 @@ function PeopleView({
                   />
                 ))}
                 {empTimeOff.map((t) => {
-                  const bar = computeBar(
-                    t.start_date,
-                    t.end_date,
-                    rangeStart,
-                    days.length,
-                  );
+                  const bar = computeBar(t.start_date, t.end_date, rangeStart, days.length);
                   if (!bar) return null;
                   return (
                     <div
                       key={t.id}
                       className="absolute top-1.5 h-3 rounded-sm bg-muted-foreground/30 border border-muted-foreground/50"
                       style={{ left: bar.left, width: bar.width }}
-                      title={`${t.type}: ${format(parseISO(t.start_date), "MMM d")} – ${format(parseISO(t.end_date), "MMM d")}`}
+                      title={`${t.type}: ${format(parseDateOnlyLocal(t.start_date), "MMM d")} – ${format(parseDateOnlyLocal(t.end_date), "MMM d")}`}
                     />
                   );
                 })}
                 {empAssigns.map((a) => {
-                  const bar = computeBar(
-                    a.start_date,
-                    a.end_date,
-                    rangeStart,
-                    days.length,
-                  );
+                  const bar = computeBar(a.start_date, a.end_date, rangeStart, days.length);
                   if (!bar) return null;
                   const c = customerBrandStripes(a.jobs?.customer_name);
                   return (
@@ -515,10 +489,7 @@ function ProjectsView({
       role_on_job: Position;
     }>;
   }>;
-  empById: Map<
-    string,
-    { first_name: string; last_name: string; position: Position }
-  >;
+  empById: Map<string, { first_name: string; last_name: string; position: Position }>;
   days: Date[];
   rangeStart: Date;
   canModify: boolean;
@@ -544,9 +515,7 @@ function ProjectsView({
               >
                 <span className={cn("inline-block w-2 h-6 rounded-sm", c.bar)} />
                 <div className="flex-1 min-w-0">
-                  <div className={cn("text-sm font-semibold truncate", c.text)}>
-                    {g.customer}
-                  </div>
+                  <div className={cn("text-sm font-semibold truncate", c.text)}>{g.customer}</div>
                   <div className="text-[11px] text-muted-foreground truncate">
                     FC {g.fc} · {g.site} · {g.service}
                   </div>
@@ -566,19 +535,11 @@ function ProjectsView({
               {g.assigns.map((a, idx) => {
                 const emp = empById.get(a.employee_id);
                 const stripe = idx % 2 === 0 ? "bg-background" : "bg-muted/20";
-                const bar = computeBar(
-                  a.start_date,
-                  a.end_date,
-                  rangeStart,
-                  days.length,
-                );
+                const bar = computeBar(a.start_date, a.end_date, rangeStart, days.length);
                 return (
                   <div
                     key={a.id}
-                    className={cn(
-                      "flex border-b last:border-b-0 hover:bg-accent/40",
-                      stripe,
-                    )}
+                    className={cn("flex border-b last:border-b-0 hover:bg-accent/40", stripe)}
                   >
                     <div className="w-60 shrink-0 px-3 py-1.5 border-r flex items-center gap-2 min-w-0">
                       {emp ? (
@@ -589,9 +550,7 @@ function ProjectsView({
                           </span>
                         </>
                       ) : (
-                        <span className="text-xs text-muted-foreground italic">
-                          Unknown person
-                        </span>
+                        <span className="text-xs text-muted-foreground italic">Unknown person</span>
                       )}
                       <span className="ml-auto text-[10px] text-muted-foreground">
                         {a.role_on_job}
@@ -623,10 +582,11 @@ function ProjectsView({
                               c.text,
                               c.ring,
                             )}
-                            title={`${format(parseISO(a.start_date), "MMM d")} – ${format(parseISO(a.end_date), "MMM d")}`}
+                            title={`${format(parseDateOnlyLocal(a.start_date), "MMM d")} – ${format(parseDateOnlyLocal(a.end_date), "MMM d")}`}
                           >
                             <span className={cn("inline-block w-1.5 h-full mr-1.5", c.bar)} />
-                            {format(parseISO(a.start_date), "MMM d")} – {format(parseISO(a.end_date), "MMM d")}
+                            {format(parseDateOnlyLocal(a.start_date), "MMM d")} –{" "}
+                            {format(parseDateOnlyLocal(a.end_date), "MMM d")}
                           </button>
                           {canModify && (
                             <button
@@ -675,17 +635,10 @@ function HeaderRow({ days }: { days: Date[] }) {
               )}
               style={{ width: COL_PX }}
             >
-              <div
-                className={cn(
-                  "text-muted-foreground",
-                  today && "text-primary font-semibold",
-                )}
-              >
+              <div className={cn("text-muted-foreground", today && "text-primary font-semibold")}>
                 {format(d, "EEE")}
               </div>
-              <div className={cn("font-semibold", today && "text-primary")}>
-                {format(d, "d")}
-              </div>
+              <div className={cn("font-semibold", today && "text-primary")}>{format(d, "d")}</div>
             </div>
           );
         })}
@@ -695,8 +648,9 @@ function HeaderRow({ days }: { days: Date[] }) {
 }
 
 function computeBar(start: string, end: string, rangeStart: Date, days: number) {
-  const s = parseISO(start);
-  const e = parseISO(end);
+  const s = parseDateOnlyLocal(start);
+  const e = parseDateOnlyLocal(end);
+  if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime())) return null;
   const startIdx = Math.max(0, differenceInCalendarDays(s, rangeStart));
   const endIdx = Math.min(days - 1, differenceInCalendarDays(e, rangeStart));
   if (endIdx < 0 || startIdx > days - 1) return null;
@@ -720,9 +674,7 @@ function FilterChip({
       onClick={onClick}
       className={cn(
         "px-3 py-1 text-xs rounded-md border transition-colors",
-        active
-          ? "bg-primary text-primary-foreground border-primary"
-          : "bg-card hover:bg-accent",
+        active ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-accent",
       )}
     >
       {children}

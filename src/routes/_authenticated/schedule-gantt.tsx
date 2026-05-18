@@ -13,7 +13,6 @@ import {
   endOfYear,
   eachDayOfInterval,
   format,
-  parseISO,
   differenceInCalendarDays,
 } from "date-fns";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
@@ -30,7 +29,7 @@ import {
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
+import { cn, parseDateOnlyLocal } from "@/lib/utils";
 import { customerBrandStripes } from "@/lib/brand-customer-colors";
 
 export const Route = createFileRoute("/_authenticated/schedule-gantt")({
@@ -110,8 +109,8 @@ function ScheduleGanttPage() {
       if (error) throw error;
       const list = (data ?? []) as JobRow[];
       return list.filter((j) => {
-        const m = parseISO(j.mobe_date);
-        const e = parseISO(j.est_completion_date);
+        const m = parseDateOnlyLocal(j.mobe_date);
+        const e = parseDateOnlyLocal(j.est_completion_date);
         return m <= periodEnd && e >= periodStart;
       });
     },
@@ -171,8 +170,8 @@ function ScheduleGanttPage() {
   }
 
   function barMetrics(start: string, end: string) {
-    const s = parseISO(start);
-    const e = parseISO(end);
+    const s = parseDateOnlyLocal(start);
+    const e = parseDateOnlyLocal(end);
     const startIdx = Math.max(0, differenceInCalendarDays(s, periodStart));
     const endIdx = Math.min(days.length - 1, differenceInCalendarDays(e, periodStart));
     if (endIdx < 0 || startIdx > days.length - 1) return null;

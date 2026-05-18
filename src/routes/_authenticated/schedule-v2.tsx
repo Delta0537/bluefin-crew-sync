@@ -9,7 +9,6 @@ import {
   format,
   isToday,
   isWeekend,
-  parseISO,
   startOfMonth,
   startOfWeek,
 } from "date-fns";
@@ -53,7 +52,7 @@ import { TimeOffDialog, type TimeOffRecord } from "@/components/time-off-dialog"
 import { AssignmentDatesDialog } from "@/components/assignment-dates-dialog";
 import { ScheduleCalendarStrip } from "@/components/schedule-calendar-strip";
 import { customerBrandCellClasses } from "@/lib/brand-customer-colors";
-import { cn } from "@/lib/utils";
+import { cn, parseDateOnlyLocal } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
 import { isEobOngoingStatus, isEobUpcomingStatus } from "@/lib/eob-job-buckets";
 
@@ -232,8 +231,8 @@ function ScheduleV2Page() {
     for (const t of timeOffQ.data ?? []) {
       if (!m.has(t.employee_id)) m.set(t.employee_id, new Map());
       const empMap = m.get(t.employee_id)!;
-      const s = parseISO(t.start_date);
-      const e = parseISO(t.end_date);
+      const s = parseDateOnlyLocal(t.start_date);
+      const e = parseDateOnlyLocal(t.end_date);
       const abbr = TIME_OFF_ABBR[t.type as TimeOffType] ?? t.type.slice(0, 4).toUpperCase();
       const tone = t.type === "Light Duty" ? "duty" : "off";
       for (const d of days) {
@@ -246,8 +245,8 @@ function ScheduleV2Page() {
     for (const a of assignsQ.data ?? []) {
       if (!m.has(a.employee_id)) m.set(a.employee_id, new Map());
       const empMap = m.get(a.employee_id)!;
-      const s = parseISO(a.start_date);
-      const e = parseISO(a.end_date);
+      const s = parseDateOnlyLocal(a.start_date);
+      const e = parseDateOnlyLocal(a.end_date);
       const jobRow = a.jobs as { fc_number?: string; customer_name?: string } | null;
       const rawFc: string = jobRow?.fc_number ?? "";
       const label = rawFc.length > 10 ? rawFc.slice(-7) : rawFc || a.job_id.slice(0, 7);

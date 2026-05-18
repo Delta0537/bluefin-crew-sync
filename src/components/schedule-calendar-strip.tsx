@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
+import { parseDateOnlyLocal } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { ClipboardList, CalendarDays } from "lucide-react";
@@ -49,7 +50,8 @@ export function ScheduleCalendarStrip({ rangeLabel, startStr, endStr }: Props) {
             )}
             <span className="font-medium text-foreground">{row.title}</span>
             <span className="text-muted-foreground">
-              {format(parseISO(row.start_date), "MMM d")} – {format(parseISO(row.end_date), "MMM d")}
+              {format(parseDateOnlyLocal(row.start_date), "MMM d")} –{" "}
+              {format(parseDateOnlyLocal(row.end_date), "MMM d")}
             </span>
           </Badge>
         ))}
