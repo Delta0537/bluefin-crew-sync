@@ -12,7 +12,7 @@
     "build:dev": "vite build --mode development",
     "start": "sh -c 'if [ -n \"${RAILWAY_PROJECT_ID:-}\" ]; then exec node .output/server/index.mjs; else export PORT=3333; exec node .output/server/index.mjs; fi'",
     "preview": "vite preview",
-    "lint": "eslint .",
+    "lint": "eslint src vite.config.ts eslint.config.js",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -56,7 +56,7 @@
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.575.0",
-    "nitro": "^3.0.0",
+    "nitro": "^3.0.260429-beta",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.0",
